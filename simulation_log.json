@@ -1,0 +1,811 @@
+[
+    {
+        "step": 1,
+        "timestamp": "2025-11-30T22:20:11.827725",
+        "red_state": {
+            "timestep": 0,
+            "hosts": {
+                "H1": {
+                    "scanned": 0,
+                    "vulnerabilities": 0,
+                    "services": 0,
+                    "is_compromised": 0,
+                    "access_level": 0
+                },
+                "H2": {
+                    "scanned": 0,
+                    "vulnerabilities": 0,
+                    "services": 0,
+                    "is_compromised": 0,
+                    "access_level": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 0
+        },
+        "blue_state": {
+            "timestep": 0,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerabilities": 3,
+                    "access_level": 0,
+                    "sensitivity": 0
+                },
+                "H2": {
+                    "is_compromised": 0,
+                    "vulnerabilities": 3,
+                    "access_level": 0,
+                    "sensitivity": 2
+                }
+            },
+            "num_compromised": 0
+        },
+        "red_action": {
+            "action": "scan",
+            "target": "H2",
+            "found_vulns": [
+                "CVE-2022-0847",
+                "CVE-2021-3156",
+                "CVE-2016-5195"
+            ],
+            "found_services": [
+                "ssh"
+            ]
+        },
+        "blue_action": {
+            "action": "patch",
+            "target": "H1"
+        },
+        "red_reward": 3.0,
+        "blue_reward": 5.0,
+        "environment": {
+            "step": 1,
+            "timestamp": "2025-11-30T22:20:11.827725",
+            "hosts": {
+                "H1": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ]
+                },
+                "H2": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2022-0847",
+                        "CVE-2021-3156",
+                        "CVE-2016-5195"
+                    ]
+                }
+            },
+            "edges": [
+                [
+                    "H1",
+                    "H2"
+                ]
+            ]
+        }
+    },
+    {
+        "step": 2,
+        "timestamp": "2025-11-30T22:20:11.828728",
+        "red_state": {
+            "timestep": 1,
+            "hosts": {
+                "H1": {
+                    "scanned": 0,
+                    "vulnerabilities": 0,
+                    "services": 0,
+                    "is_compromised": 0,
+                    "access_level": 0
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vulnerabilities": 3,
+                    "services": 1,
+                    "is_compromised": 0,
+                    "access_level": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 0
+        },
+        "blue_state": {
+            "timestep": 1,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerabilities": 2,
+                    "access_level": 0,
+                    "sensitivity": 0
+                },
+                "H2": {
+                    "is_compromised": 0,
+                    "vulnerabilities": 3,
+                    "access_level": 0,
+                    "sensitivity": 2
+                }
+            },
+            "num_compromised": 0
+        },
+        "red_action": {
+            "action": "scan",
+            "target": "H1",
+            "found_vulns": [
+                "CVE-2020-0796",
+                "CVE-2017-0144"
+            ],
+            "found_services": [
+                "rdp",
+                "smb"
+            ]
+        },
+        "blue_action": {
+            "action": "idle"
+        },
+        "red_reward": 3.0,
+        "blue_reward": 0.0,
+        "environment": {
+            "step": 2,
+            "timestamp": "2025-11-30T22:20:11.828728",
+            "hosts": {
+                "H1": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ]
+                },
+                "H2": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2022-0847",
+                        "CVE-2021-3156",
+                        "CVE-2016-5195"
+                    ]
+                }
+            },
+            "edges": [
+                [
+                    "H1",
+                    "H2"
+                ]
+            ]
+        }
+    },
+    {
+        "step": 3,
+        "timestamp": "2025-11-30T22:20:11.829724",
+        "red_state": {
+            "timestep": 2,
+            "hosts": {
+                "H1": {
+                    "scanned": 1,
+                    "vulnerabilities": 2,
+                    "services": 2,
+                    "is_compromised": 0,
+                    "access_level": 0
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vulnerabilities": 3,
+                    "services": 1,
+                    "is_compromised": 0,
+                    "access_level": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 0
+        },
+        "blue_state": {
+            "timestep": 2,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerabilities": 2,
+                    "access_level": 0,
+                    "sensitivity": 0
+                },
+                "H2": {
+                    "is_compromised": 0,
+                    "vulnerabilities": 3,
+                    "access_level": 0,
+                    "sensitivity": 2
+                }
+            },
+            "num_compromised": 0
+        },
+        "red_action": {
+            "action": "exploit",
+            "success": true,
+            "target": "H1"
+        },
+        "blue_action": {
+            "action": "isolate",
+            "target": "H1"
+        },
+        "red_reward": 35.0,
+        "blue_reward": -6.0,
+        "environment": {
+            "step": 3,
+            "timestamp": "2025-11-30T22:20:11.829724",
+            "hosts": {
+                "H1": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ]
+                },
+                "H2": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2022-0847",
+                        "CVE-2021-3156",
+                        "CVE-2016-5195"
+                    ]
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 4,
+        "timestamp": "2025-11-30T22:20:11.829724",
+        "red_state": {
+            "timestep": 3,
+            "hosts": {
+                "H1": {
+                    "scanned": 1,
+                    "vulnerabilities": 2,
+                    "services": 2,
+                    "is_compromised": 1,
+                    "access_level": 2
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vulnerabilities": 3,
+                    "services": 1,
+                    "is_compromised": 0,
+                    "access_level": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 1
+        },
+        "blue_state": {
+            "timestep": 3,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 1,
+                    "vulnerabilities": 2,
+                    "access_level": 2,
+                    "sensitivity": 0
+                },
+                "H2": {
+                    "is_compromised": 0,
+                    "vulnerabilities": 3,
+                    "access_level": 0,
+                    "sensitivity": 2
+                }
+            },
+            "num_compromised": 1
+        },
+        "red_action": {
+            "action": "exploit",
+            "success": false,
+            "target": "H1"
+        },
+        "blue_action": {
+            "action": "patch",
+            "target": "H1"
+        },
+        "red_reward": -3.0,
+        "blue_reward": 5.0,
+        "environment": {
+            "step": 4,
+            "timestamp": "2025-11-30T22:20:11.829724",
+            "hosts": {
+                "H1": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2017-0144"
+                    ]
+                },
+                "H2": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2022-0847",
+                        "CVE-2021-3156",
+                        "CVE-2016-5195"
+                    ]
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 5,
+        "timestamp": "2025-11-30T22:20:11.830882",
+        "red_state": {
+            "timestep": 4,
+            "hosts": {
+                "H1": {
+                    "scanned": 1,
+                    "vulnerabilities": 2,
+                    "services": 2,
+                    "is_compromised": 1,
+                    "access_level": 2
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vulnerabilities": 3,
+                    "services": 1,
+                    "is_compromised": 0,
+                    "access_level": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 1
+        },
+        "blue_state": {
+            "timestep": 4,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 1,
+                    "vulnerabilities": 1,
+                    "access_level": 2,
+                    "sensitivity": 0
+                },
+                "H2": {
+                    "is_compromised": 0,
+                    "vulnerabilities": 3,
+                    "access_level": 0,
+                    "sensitivity": 2
+                }
+            },
+            "num_compromised": 1
+        },
+        "red_action": {
+            "action": "scan",
+            "target": "H1",
+            "found_vulns": [
+                "CVE-2017-0144"
+            ],
+            "found_services": [
+                "rdp",
+                "smb"
+            ]
+        },
+        "blue_action": {
+            "action": "idle"
+        },
+        "red_reward": 3.0,
+        "blue_reward": 0.0,
+        "environment": {
+            "step": 5,
+            "timestamp": "2025-11-30T22:20:11.830882",
+            "hosts": {
+                "H1": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2017-0144"
+                    ]
+                },
+                "H2": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2022-0847",
+                        "CVE-2021-3156",
+                        "CVE-2016-5195"
+                    ]
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 6,
+        "timestamp": "2025-11-30T22:20:11.831769",
+        "red_state": {
+            "timestep": 5,
+            "hosts": {
+                "H1": {
+                    "scanned": 1,
+                    "vulnerabilities": 1,
+                    "services": 2,
+                    "is_compromised": 1,
+                    "access_level": 2
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vulnerabilities": 3,
+                    "services": 1,
+                    "is_compromised": 0,
+                    "access_level": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 1
+        },
+        "blue_state": {
+            "timestep": 5,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 1,
+                    "vulnerabilities": 1,
+                    "access_level": 2,
+                    "sensitivity": 0
+                },
+                "H2": {
+                    "is_compromised": 0,
+                    "vulnerabilities": 3,
+                    "access_level": 0,
+                    "sensitivity": 2
+                }
+            },
+            "num_compromised": 1
+        },
+        "red_action": {
+            "action": "scan",
+            "target": "H1",
+            "found_vulns": [
+                "CVE-2017-0144"
+            ],
+            "found_services": [
+                "rdp",
+                "smb"
+            ]
+        },
+        "blue_action": {
+            "action": "idle"
+        },
+        "red_reward": 3.0,
+        "blue_reward": 0.0,
+        "environment": {
+            "step": 6,
+            "timestamp": "2025-11-30T22:20:11.831769",
+            "hosts": {
+                "H1": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2017-0144"
+                    ]
+                },
+                "H2": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2022-0847",
+                        "CVE-2021-3156",
+                        "CVE-2016-5195"
+                    ]
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 7,
+        "timestamp": "2025-11-30T22:20:11.832724",
+        "red_state": {
+            "timestep": 6,
+            "hosts": {
+                "H1": {
+                    "scanned": 1,
+                    "vulnerabilities": 1,
+                    "services": 2,
+                    "is_compromised": 1,
+                    "access_level": 2
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vulnerabilities": 3,
+                    "services": 1,
+                    "is_compromised": 0,
+                    "access_level": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 1
+        },
+        "blue_state": {
+            "timestep": 6,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 1,
+                    "vulnerabilities": 1,
+                    "access_level": 2,
+                    "sensitivity": 0
+                },
+                "H2": {
+                    "is_compromised": 0,
+                    "vulnerabilities": 3,
+                    "access_level": 0,
+                    "sensitivity": 2
+                }
+            },
+            "num_compromised": 1
+        },
+        "red_action": {
+            "action": "exploit",
+            "success": true,
+            "target": "H2"
+        },
+        "blue_action": {
+            "action": "isolate",
+            "target": "H2"
+        },
+        "red_reward": 35.0,
+        "blue_reward": -6.0,
+        "environment": {
+            "step": 7,
+            "timestamp": "2025-11-30T22:20:11.832724",
+            "hosts": {
+                "H1": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2017-0144"
+                    ]
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2022-0847",
+                        "CVE-2021-3156",
+                        "CVE-2016-5195"
+                    ]
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 8,
+        "timestamp": "2025-11-30T22:20:11.834725",
+        "red_state": {
+            "timestep": 7,
+            "hosts": {
+                "H1": {
+                    "scanned": 1,
+                    "vulnerabilities": 1,
+                    "services": 2,
+                    "is_compromised": 1,
+                    "access_level": 2
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vulnerabilities": 3,
+                    "services": 1,
+                    "is_compromised": 1,
+                    "access_level": 2
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 2
+        },
+        "blue_state": {
+            "timestep": 7,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 1,
+                    "vulnerabilities": 1,
+                    "access_level": 2,
+                    "sensitivity": 0
+                },
+                "H2": {
+                    "is_compromised": 1,
+                    "vulnerabilities": 3,
+                    "access_level": 2,
+                    "sensitivity": 2
+                }
+            },
+            "num_compromised": 2
+        },
+        "red_action": {
+            "action": "scan",
+            "target": "H2",
+            "found_vulns": [
+                "CVE-2022-0847",
+                "CVE-2021-3156",
+                "CVE-2016-5195"
+            ],
+            "found_services": [
+                "ssh"
+            ]
+        },
+        "blue_action": {
+            "action": "patch",
+            "target": "H1"
+        },
+        "red_reward": 3.0,
+        "blue_reward": 5.0,
+        "environment": {
+            "step": 8,
+            "timestamp": "2025-11-30T22:20:11.834725",
+            "hosts": {
+                "H1": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": []
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2022-0847",
+                        "CVE-2021-3156",
+                        "CVE-2016-5195"
+                    ]
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 9,
+        "timestamp": "2025-11-30T22:20:11.835726",
+        "red_state": {
+            "timestep": 8,
+            "hosts": {
+                "H1": {
+                    "scanned": 1,
+                    "vulnerabilities": 1,
+                    "services": 2,
+                    "is_compromised": 1,
+                    "access_level": 2
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vulnerabilities": 3,
+                    "services": 1,
+                    "is_compromised": 1,
+                    "access_level": 2
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 2
+        },
+        "blue_state": {
+            "timestep": 8,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 1,
+                    "vulnerabilities": 0,
+                    "access_level": 2,
+                    "sensitivity": 0
+                },
+                "H2": {
+                    "is_compromised": 1,
+                    "vulnerabilities": 3,
+                    "access_level": 2,
+                    "sensitivity": 2
+                }
+            },
+            "num_compromised": 2
+        },
+        "red_action": {
+            "action": "exploit",
+            "success": false,
+            "target": "H2"
+        },
+        "blue_action": {
+            "action": "idle"
+        },
+        "red_reward": -3.0,
+        "blue_reward": 0.0,
+        "environment": {
+            "step": 9,
+            "timestamp": "2025-11-30T22:20:11.835726",
+            "hosts": {
+                "H1": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": []
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2022-0847",
+                        "CVE-2021-3156",
+                        "CVE-2016-5195"
+                    ]
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 10,
+        "timestamp": "2025-11-30T22:20:11.836723",
+        "red_state": {
+            "timestep": 9,
+            "hosts": {
+                "H1": {
+                    "scanned": 1,
+                    "vulnerabilities": 1,
+                    "services": 2,
+                    "is_compromised": 1,
+                    "access_level": 2
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vulnerabilities": 3,
+                    "services": 1,
+                    "is_compromised": 1,
+                    "access_level": 2
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 2
+        },
+        "blue_state": {
+            "timestep": 9,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 1,
+                    "vulnerabilities": 0,
+                    "access_level": 2,
+                    "sensitivity": 0
+                },
+                "H2": {
+                    "is_compromised": 1,
+                    "vulnerabilities": 3,
+                    "access_level": 2,
+                    "sensitivity": 2
+                }
+            },
+            "num_compromised": 2
+        },
+        "red_action": {
+            "action": "scan",
+            "target": "H1",
+            "found_vulns": [],
+            "found_services": [
+                "rdp",
+                "smb"
+            ]
+        },
+        "blue_action": {
+            "action": "idle"
+        },
+        "red_reward": 0.0,
+        "blue_reward": 0.0,
+        "environment": {
+            "step": 10,
+            "timestamp": "2025-11-30T22:20:11.836723",
+            "hosts": {
+                "H1": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": []
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2022-0847",
+                        "CVE-2021-3156",
+                        "CVE-2016-5195"
+                    ]
+                }
+            },
+            "edges": []
+        }
+    }
+]

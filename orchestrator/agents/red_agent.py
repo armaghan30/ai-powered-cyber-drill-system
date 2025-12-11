@@ -1,84 +1,113 @@
-# red_agent.py
+# orchestrator/agents/red_agent.py
 
 import random
 
 
 class RedAgent:
+    """
+    Simple Red Agent used by:
+      - Orchestrator.run_single_step()  (for rule-based sims)
+      - RedRLEnvironment (for DQN training via scan/exploit)
+
+    It *does not* directly mutate the environment for exploits.
+    The actual state change (compromise, edges, etc.) is applied
+    inside Environment.step(red_action, blue_action).
+    """
 
     def __init__(self, environment):
+        """
+        :param environment: orchestrator.env_builder.Environment
+        """
         self.env = environment
-
-        # what the red agent has discovered
+        # what we have learned via scans
         self.known_vulns = {}
         self.compromised_hosts = []
 
-    # ---------------- SCAN HOST -----------------
-    def scan(self, host_name):
+    # ------------------------------------------------------------------
+    # SCAN
+    # ------------------------------------------------------------------
+    def scan(self, host_name: str):
+        """
+        "Passive" information-gathering.
+        Environment state is NOT changed here.
+        """
         host = self.env.hosts[host_name]
 
-        found_vulns = list(host.vulnerabilities)
-        found_services = list(host.services)
+        found_vulns = list(getattr(host, "vulnerabilities", []))
+        found_services = list(getattr(host, "services", []))
 
-        # Store knowledge in RL-friendly format
+        # Update local knowledge
         self.known_vulns[host_name] = {
             "vulnerabilities": found_vulns,
-            "services": found_services
+            "services": found_services,
         }
 
         print(f" RED: Scanned {host_name} → vulns={found_vulns}")
 
-        # MUST RETURN RL-COMPATIBLE FORMAT
         return {
             "action": "scan",
             "target": host_name,
-            "vulnerabilities": found_vulns,   # FIXED KEY NAME
-            "services": found_services        # FIXED KEY NAME
+            "vulnerabilities": found_vulns,
+            "services": found_services,
         }
 
-    # ---------------- EXPLOIT HOST -----------------
-    def exploit(self, host_name):
-        host = self.env.hosts[host_name]
+    # ------------------------------------------------------------------
+    # EXPLOIT
+    # ------------------------------------------------------------------
+    def exploit(self, host_name: str):
+        """
+        Attempt to exploit a host.
 
-        if not host.vulnerabilities:
+        - Success probability > 0 if host has at least 1 vulnerability.
+        - Does NOT directly modify host state; Environment.step() will
+          apply compromise when it sees {"action":"exploit", "success":True,...}.
+        """
+        host = self.env.hosts[host_name]
+        vulns = list(getattr(host, "vulnerabilities", []))
+
+        if not vulns:
             print(f" RED: Exploit failed on {host_name}. No vulnerabilities.")
             return {
                 "action": "exploit",
                 "success": False,
                 "target": host_name,
-                "vulnerabilities": list(host.vulnerabilities)
+                "vulnerabilities": vulns,
             }
 
-        success = random.random() < 0.7  # 70% success rate
+        # simple success probability
+        success = random.random() < 0.7
 
         if success:
-            host.is_compromised = True
-            host.access_level = "root"
+            print(f"RED: Successfully exploited {host_name}!")
             if host_name not in self.compromised_hosts:
                 self.compromised_hosts.append(host_name)
-
-            print(f"RED: Successfully exploited {host_name}!")
-
-            return {
-                "action": "exploit",
-                "success": True,
-                "target": host_name,
-                "vulnerabilities": list(host.vulnerabilities)
-            }
-
         else:
             print(f"RED: Exploit failed on {host_name}.")
-            return {
-                "action": "exploit",
-                "success": False,
-                "target": host_name,
-                "vulnerabilities": list(host.vulnerabilities)
-            }
 
-    # ---------------- SIMPLE POLICY (not used for RL) -----------------
+        return {
+            "action": "exploit",
+            "success": success,
+            "target": host_name,
+            "vulnerabilities": vulns,
+        }
+
+    # ------------------------------------------------------------------
+    # SIMPLE RULE-BASED POLICY (used by Orchestrator.run_simulation)
+    # ------------------------------------------------------------------
     def choose_action(self):
-        target = random.choice(list(self.env.hosts.keys()))
+        """
+        Simple random policy:
+          - Pick a random host
+          - 50% scan, 50% exploit
+        This is used only in the *non-RL* orchestrator demo.
+        """
+        host_names = list(self.env.hosts.keys())
+        if not host_names:
+            return {"action": "idle"}
 
-        # Basic heuristic: random scan 50%, exploit 50%
+        target = random.choice(host_names)
+
         if random.random() < 0.5:
             return self.scan(target)
-        return self.exploit(target)
+        else:
+            return self.exploit(target)

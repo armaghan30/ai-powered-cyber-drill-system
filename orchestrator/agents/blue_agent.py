@@ -1,4 +1,4 @@
-# blue_agent.py
+# orchestrator/agents/blue_agent.py
 
 import random
 
@@ -7,12 +7,20 @@ class BlueAgent:
     """
     Simple rule-based defender with:
       - detection of successful exploits
-      - patching with cooldown (every 3 steps)
-      - patch ONE vulnerability per patch
+      - patching with cooldown
+      - patch ONE vulnerability per patch (env handles the effect)
       - isolation of compromised hosts
+
+    This is used both:
+      - as a fixed heuristic Blue during Red RL training
+      - and as the baseline Blue policy in simple evaluations.
     """
 
-    def __init__(self, environment, patch_cooldown_steps: int = 3):
+    def __init__(self, environment, patch_cooldown_steps: int = 5):
+        """
+        :param environment: Environment instance
+        :param patch_cooldown_steps: how many steps must pass between patches
+        """
         self.env = environment
         self.patch_cooldown_steps = patch_cooldown_steps
         self.patch_cooldown = 0  # steps remaining until next patch is allowed
@@ -38,12 +46,14 @@ class BlueAgent:
         Detect if an exploit attempt succeeded.
         Must be safe even if "success" key doesn't exist (e.g. SCAN).
         """
+        if not last_red_action:
+            return False
         if last_red_action.get("action") == "exploit" and last_red_action.get("success", False):
             return True
         return False
 
     # --------------------------------------------------
-    # Patch logic (env step actually applies patch)
+    # Patch logic (env.step actually applies patch)
     # --------------------------------------------------
     def make_patch_action(self, host_name):
         # Do NOT modify env here; env_builder.Environment.step() will handle it.
@@ -94,4 +104,4 @@ class BlueAgent:
                 return self.make_patch_action(target)
 
         # 4) Otherwise idle
-        return {"action": "idle"}
+        return {"action": "idle", "target": None}

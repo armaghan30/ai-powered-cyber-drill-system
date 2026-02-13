@@ -1,9 +1,7 @@
-# orchestrator/eval_dqn_blue.py
-
 import numpy as np
 
 from .rl_env_blue import BlueRLEnvironment
-from .dqn_agent_red import DQNAgentRed
+from .dqn_agent_blue import DQNAgentBlue
 
 
 def main():
@@ -13,18 +11,15 @@ def main():
 
     env = BlueRLEnvironment(topology_path, max_steps=20)
 
-    # Load initial Blue observation
-    obs_vec, info = env.reset()
-    state_dim = obs_vec.shape[0]
-    action_dim = env.num_blue_actions
-
     # Load trained Blue model
-    agent = DQNAgentRed(state_dim=state_dim, action_dim=action_dim)
-    agent.load("blue_dqn_model.pth")
+    agent = DQNAgentBlue.load("blue_dqn_model.pth")
+    agent.epsilon = 0.0  
 
     print("[INFO] Loaded Blue DQN model.")
-    print(f"[INFO] Observation dim : {state_dim}")
-    print(f"[INFO] Action dim       : {action_dim}")
+    print(f"[INFO] Observation dim : {agent.state_dim}")
+    print(f"[INFO] Action dim       : {agent.action_dim}")
+
+    obs_vec, info = env.reset()
 
     done = False
     step = 0
@@ -36,15 +31,14 @@ def main():
         step += 1
         print(f"--- STEP {step} ---")
 
-        # Choose action deterministically
-        action_id = agent.select_action_eval(obs_vec)
+        # Choose action
+        action_id = agent.act(obs_vec, eval_mode=True)
         next_obs, reward, terminated, truncated, info = env.step(action_id)
 
         done = terminated or truncated
         total_reward += reward
         obs_vec = next_obs
 
-        # Pretty result
         print(f"RED ACTION : {info['red_action']}")
         print(f"BLUE ACTION: {info['blue_action']}")
         print(f"REWARD     : {reward}")

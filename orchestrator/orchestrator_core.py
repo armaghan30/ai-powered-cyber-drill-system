@@ -7,7 +7,7 @@ from orchestrator.yaml_loader import YAMLLoader
 from orchestrator.env_builder import Environment
 from orchestrator.agents.red_agent import RedAgent
 from orchestrator.agents.blue_agent import BlueAgent
-from orchestrator.reward_engine import RewardEngine   # NEW: external reward engine
+from orchestrator.reward_engine import RewardEngine
 
 
 class Orchestrator:
@@ -17,15 +17,15 @@ class Orchestrator:
     def __init__(self, topology_path: str):
         self.topology_path = topology_path
         self.topology = None
-        self.environment = None
-        self.red_agent = None
-        self.blue_agent = None
+        self.environment: Environment | None = None
+        self.red_agent: RedAgent | None = None
+        self.blue_agent: BlueAgent | None = None
         self.logs = []
-        self.reward_engine = RewardEngine()   # <-- Uses external class
+        self.reward_engine = RewardEngine()
 
-    # ------------------------------------------------------------
-    # Load Topology, Build Environment
-    # ------------------------------------------------------------
+    
+    # -----------Load Topology, Build Environment------------------
+    
     def load_topology(self):
         print("Loading topology...")
         loader = YAMLLoader(self.topology_path)
@@ -42,27 +42,28 @@ class Orchestrator:
         return self.environment
 
     def init_red_agent(self):
+        if self.environment is None:
+            raise ValueError("Environment not built.")
         self.red_agent = RedAgent(self.environment)
         print("Red Agent Ready.")
         return self.red_agent
 
     def init_blue_agent(self):
+        if self.environment is None:
+            raise ValueError("Environment not built.")
         self.blue_agent = BlueAgent(self.environment)
         print("Blue Agent Ready.")
         return self.blue_agent
 
-    # ------------------------------------------------------------
-    # Snapshot for reward engine
-    # ------------------------------------------------------------
+    # ------------------Snapshot for reward engine--------------------------
+    
     def _snapshot_environment(self):
-        """
-        Capture current environment state as a JSON-dumpable snapshot.
-        """
         hosts_state = {
             name: {
                 "is_compromised": host.is_compromised,
                 "access_level": host.access_level,
                 "vulnerabilities": list(host.vulnerabilities),
+                "is_isolated": host.is_isolated,
             }
             for name, host in self.environment.hosts.items()
         }
@@ -73,24 +74,9 @@ class Orchestrator:
             "hosts": hosts_state,
             "edges": copy.deepcopy(self.environment.edges),
         }
-        # ------------------------------------------------------------
-    # BLUE OBSERVATION VECTOR (used during evaluation)
-    # ------------------------------------------------------------
-    def get_blue_state_vector(self):
-        """
-        Produce the same Blue observation vector used during training.
-        This keeps eval_both_agents consistent with BlueRLEnvironment.
-        """
-        from .rl_env_blue import flatten_blue_state
 
-        snapshot = self._snapshot_environment()
-        obs_vec = flatten_blue_state(snapshot)
-
-        return obs_vec
-
-    # ------------------------------------------------------------
-    # Encoding helpers for RL states
-    # ------------------------------------------------------------
+    # -------------------Encoding helpers---------------------------
+    
     @staticmethod
     def _encode_access_level(level_str):
         return {"none": 0, "user": 1, "root": 2}.get(level_str, 0)
@@ -99,67 +85,58 @@ class Orchestrator:
     def _encode_sensitivity(sens):
         return {"low": 0, "medium": 1, "high": 2}.get(sens, 0)
 
-    # ------------------------------------------------------------
-    # RED RL STATE (ALWAYS returns 13 features)
-    # ------------------------------------------------------------
+    
+    # -------------RED RL STATE-----------------------
+    
     def _build_red_state(self):
         env = self.environment
-        timestep = env.step_count
         hosts = env.hosts
         knowledge = getattr(self.red_agent, "known_vulns", {})
 
         hosts_state = {}
-
         for name, host in hosts.items():
             scanned = name in knowledge
-
-            if scanned:
-                vulns = knowledge[name].get("vulnerabilities", [])
-                services = knowledge[name].get("services", [])
-            else:
-                vulns = []
-                services = []
+            vulns = knowledge.get(name, {}).get("vulnerabilities", [])
+            services = knowledge.get(name, {}).get("services", [])
 
             hosts_state[name] = {
                 "scanned": int(scanned),
-                "vulnerabilities": len(vulns),
-                "services": len(services),
+                "vuln_count": len(vulns),
+                "service_count": len(services),
                 "is_compromised": int(host.is_compromised),
                 "access_level": self._encode_access_level(host.access_level),
+                "is_isolated": int(host.is_isolated),
             }
 
         red_state = {
-            "timestep": timestep,
+            "timestep": env.step_count,
             "hosts": hosts_state,
             "num_hosts": len(hosts_state),
             "num_compromised": sum(h["is_compromised"] for h in hosts_state.values()),
         }
-
         return red_state
 
-    # ------------------------------------------------------------
-    # BLUE RL STATE
-    # ------------------------------------------------------------
+    # -------------BLUE state---------------------
+    
     def _build_blue_state(self):
         env = self.environment
-        timestep = env.step_count
         hosts = env.hosts
 
         hosts_state = {}
         for name, host in hosts.items():
             hosts_state[name] = {
                 "is_compromised": int(host.is_compromised),
-                "vulnerabilities": len(host.vulnerabilities),
+                "vulnerability_count": len(host.vulnerabilities),
                 "access_level": self._encode_access_level(host.access_level),
                 "sensitivity": self._encode_sensitivity(host.sensitivity),
+                "is_isolated": int(host.is_isolated),
             }
 
         blue_state = {
-            "timestep": timestep,
+            "timestep": env.step_count,
             "hosts": hosts_state,
             "num_compromised": sum(h["is_compromised"] for h in hosts_state.values()),
         }
-
         return blue_state
 
     def get_red_state(self):
@@ -168,11 +145,9 @@ class Orchestrator:
     def get_blue_state(self):
         return self._build_blue_state()
 
-    # ------------------------------------------------------------
-    # Simulation Step
-    # ------------------------------------------------------------
+    # ---------------------Simulation Step-----------------------
+    
     def run_single_step(self):
-
         red_state = self._build_red_state()
         blue_state = self._build_blue_state()
 
@@ -205,7 +180,6 @@ class Orchestrator:
         self.logs.append(log_entry)
         return log_entry
 
-    # ------------------------------------------------------------
     def run_simulation(self, max_steps=10):
         print(f"Starting simulation for {max_steps} steps...\n")
         for _ in range(max_steps):
@@ -218,15 +192,13 @@ class Orchestrator:
         print("Simulation complete.\n")
         return self.logs
 
-    # ------------------------------------------------------------
     def save_logs(self, filepath="simulation_log.json"):
         with open(filepath, "w") as f:
             json.dump(self.logs, f, indent=4)
         print(f"Logs saved to {filepath}")
 
-    # ------------------------------------------------------------
-    # Dashboard API
-    # ------------------------------------------------------------
+    # ---------------Dashboard / API helpers-----------------------
+    
     @classmethod
     def create_env(cls, topology_path: str):
         instance = cls(topology_path)

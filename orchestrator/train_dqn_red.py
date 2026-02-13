@@ -1,124 +1,77 @@
-import numpy as np
+
+#Train the RED DQN agent using the RedRLEnvironment (Gymnasium-style)
+
+from __future__ import annotations
+
 import csv
 
 from orchestrator.rl_env_red import RedRLEnvironment
 from orchestrator.dqn_agent_red import DQNAgentRed
 
 
-def flatten_red_state(state: dict, host_order: list[str]) -> np.ndarray:
-    hosts = state["hosts"]
-    features = []
-
-    for name in host_order:
-        h = hosts.get(name)
-        if h is None:
-            features.extend([0, 0, 0, 0, 0])
-        else:
-            features.extend([
-                h["scanned"],
-                h["vulnerabilities"],
-                h["services"],
-                h["is_compromised"],
-                h["access_level"],
-            ])
-
-    features.append(state["timestep"])
-    features.append(state["num_hosts"])
-    features.append(state["num_compromised"])
-
-    return np.array(features, dtype=np.float32)
-
-
 def main():
-
     topology_path = "orchestrator/sample_topology.yaml"
 
+    num_episodes = 500
     max_steps_per_episode = 20
-    num_episodes = 10
 
-    agent_lr = 1e-3
     gamma = 0.99
+    lr = 1e-3
     batch_size = 64
-    buffer_capacity = 5000
-
+    buffer_capacity = 10_000
     epsilon_start = 1.0
     epsilon_end = 0.05
-    epsilon_decay_steps = 5000
+    epsilon_decay = 5_000
     target_update_freq = 500
 
-    # === CREATE ENVIRONMENT ===
+    # Build env and get dims
     env = RedRLEnvironment(topology_path, max_steps=max_steps_per_episode)
+    state_vec, _ = env.reset()
+    state_dim = state_vec.shape[0]
+    action_dim = env.action_dim
 
-    # === Gymnasium RESET ===
-    _, _ = env.reset()
+    print(f"[INFO] RED Training -> state_dim={state_dim}, action_dim={action_dim}")
 
-    # Get initial orchestrator state
-    state_dict = env.orch.get_red_state()
-
-    host_order = sorted(env.orch.environment.hosts.keys())
-    example_vec = flatten_red_state(state_dict, host_order)
-
-    state_dim = example_vec.shape[0]
-    action_dim = env.num_red_actions
-
-    print(f"[INFO] State dim : {state_dim}")
-    print(f"[INFO] Actions   : {action_dim}")
-    print(f"[INFO] Hosts     : {host_order}")
-
-    # === CREATE AGENT ===
     agent = DQNAgentRed(
         state_dim=state_dim,
         action_dim=action_dim,
-        lr=agent_lr,
+        lr=lr,
         gamma=gamma,
         batch_size=batch_size,
         buffer_capacity=buffer_capacity,
         epsilon_start=epsilon_start,
         epsilon_end=epsilon_end,
-        epsilon_decay=epsilon_decay_steps,
+        epsilon_decay=epsilon_decay,
         target_update_freq=target_update_freq,
     )
 
     episode_rewards = []
 
-    # === TRAINING LOOP ===
-    for episode in range(1, num_episodes + 1):
-
-        _, _ = env.reset()
-        state_dict = env.orch.get_red_state()
-        done = False
+    for ep in range(1, num_episodes + 1):
+        state, _ = env.reset()
         total_reward = 0.0
-        steps = 0
 
-        print(f"\n[EPISODE {episode}/{num_episodes}] Starting...")
+        for t in range(1, max_steps_per_episode + 1):
+            action = agent.act(state)
+            next_state, reward, terminated, truncated, info = env.step(action)
 
-        while not done:
-            steps += 1
-            if steps > max_steps_per_episode:
-                break
-
-            state_vec = flatten_red_state(state_dict, host_order)
-
-            action_id = agent.select_action(state_vec)
-
-            next_obs, reward, terminated, truncated, info = env.step(action_id)
             done = terminated or truncated
+            agent.store_transition(state, action, reward, next_state, done)
+            agent.update()
 
-            next_state_dict = env.orch.get_red_state()
-            next_vec = flatten_red_state(next_state_dict, host_order)
-
-            agent.store_transition(state_vec, action_id, reward, next_vec, done)
-            agent.train_step()
-
-            state_dict = next_state_dict
+            state = next_state
             total_reward += reward
 
-        episode_rewards.append(total_reward)
+            if done:
+                break
 
-        print(f"[EP {episode}] Reward={total_reward:.2f} | Epsilon={agent.epsilon:.3f}")
+        episode_rewards.append(total_reward)
+        print(
+            f"[RED EPISODE {ep}/{num_episodes}] "
+            f"Reward = {total_reward:.2f} | ε = {agent.epsilon:.3f}"
+        )
 
     agent.save("red_dqn_model.pth")
-    print("\n[INFO] Model saved to red_dqn_model.pth")
 
     with open("red_rewards.csv", "w", newline="") as f:
         writer = csv.writer(f)
@@ -126,7 +79,7 @@ def main():
         for i, r in enumerate(episode_rewards, start=1):
             writer.writerow([i, r])
 
-    print("[INFO] Rewards saved to red_rewards.csv")
+    print("[RED] Episode rewards saved -> red_rewards.csv")
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from orchestrator.dqn_agent_red import DQNAgentRed
 from orchestrator.rl_env_red import RedRLEnvironment
-from orchestrator.train_dqn_red import flatten_red_state
+from orchestrator.state_vectors import flatten_red_state
 
 
 def evaluate_model(
@@ -20,21 +20,19 @@ def evaluate_model(
     # -------- Environment --------
     env = RedRLEnvironment(topology_path, max_steps=max_steps)
 
-    # Gymnasium reset -> returns (obs, info)
+    # -------------------Gymnasium reset --------------
     _, _ = env.reset()
 
-    # Get red state dict from orchestrator
     init_state = env.orch.get_red_state()
 
     host_order = sorted(env.orch.environment.hosts.keys())
     state_dim = flatten_red_state(init_state, host_order).shape[0]
-    action_dim = env.num_red_actions
+    action_dim = env.action_dim
 
     # -------- Agent --------
-    agent = DQNAgentRed(state_dim, action_dim)
-    checkpoint = torch.load(model_path, map_location="cpu")
-    agent.policy_net.load_state_dict(checkpoint["online_state_dict"])
-    agent.policy_net.eval()
+    agent = DQNAgentRed.load(model_path)
+    agent.epsilon = 0.0
+    agent.online.eval()
 
     print(f"[INFO] Hosts: {host_order}")
     print(f"[INFO] State dim = {state_dim}, Actions = {action_dim}")
@@ -55,7 +53,7 @@ def evaluate_model(
 
             state_vec = flatten_red_state(state_dict, host_order)
 
-            action_id = agent.select_action_eval(state_vec)
+            action_id = agent.act(state_vec, eval_mode=True)
 
             # Gymnasium step format
             next_obs, reward, terminated, truncated, info = env.step(action_id)
@@ -82,7 +80,7 @@ def evaluate_model(
             f"Compromised Hosts = {compromised}"
         )
 
-    # -------- PLOTS --------
+   
     plt.figure(figsize=(10, 5))
     plt.plot(episode_rewards, marker="o")
     plt.title("Red Agent: Total Reward Per Episode")

@@ -1,5 +1,3 @@
-# yaml_loader.py
-
 import yaml
 
 
@@ -18,10 +16,10 @@ class YAMLLoader:
 
     def validate(self, data):
         if "network" not in data:
-            raise ValueError("❌ YAML must contain 'network' section")
+            raise ValueError(" YAML must contain 'network' section")
 
         if "hosts" not in data["network"]:
-            raise ValueError("❌ YAML must define hosts")
+            raise ValueError("YAML must define hosts")
 
         return True
 

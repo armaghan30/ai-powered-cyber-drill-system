@@ -1,78 +1,56 @@
-# eval_dqn_red.py
 
-import torch
+
+from __future__ import annotations
+
 from orchestrator.rl_env_red import RedRLEnvironment
 from orchestrator.dqn_agent_red import DQNAgentRed
 
 
-MODEL_PATH = "red_dqn_model.pth"
-TOPOLOGY = "orchestrator/sample_topology.yaml"
+def load_red_agent(path: str) -> DQNAgentRed:
+    agent = DQNAgentRed.load(path)
+    agent.epsilon = 0.0  
+    print("[EVAL RED] RED DQN model loaded successfully.")
+    return agent
 
-EPISODES = 5     # number of evaluation episodes
-MAX_STEPS = 20   # steps per episode
 
+def main():
+    model_path = "red_dqn_model.pth"
+    topology_path = "orchestrator/sample_topology.yaml"
+    max_steps = 20
 
-def evaluate_policy():
-    print("Loading topology...")
-    env = RedRLEnvironment(TOPOLOGY, max_steps=MAX_STEPS)
-    initial_state = env.reset()
+    # 1) Load agent
+    agent = load_red_agent(model_path)
 
-    # Compute state_dim from first state
-    host_features = []
-    for h in sorted(initial_state["hosts"].keys()):
-        host_features.extend([
-            0, 0, 0, 0, 0
-        ])
-    state_dim = len(host_features)
+    # 2) Build environment
+    env = RedRLEnvironment(topology_path, max_steps=max_steps)
 
-    num_actions = env.num_red_actions
+    # 3) Run a single evaluation episode
+    state, _ = env.reset()
+    total_reward = 0.0
 
-    # Load agent
-    agent = DQNAgentRed(state_dim, num_actions)
+    print("=========== RED DQN EVALUATION START ===========\n")
 
-    print("Loading DQN checkpoint...")
-    checkpoint = torch.load(MODEL_PATH, map_location="cpu")
+    for step in range(1, max_steps + 1):
+        action = agent.act(state, eval_mode=True)
+        next_state, reward, terminated, truncated, info = env.step(action)
 
-    # Load ONLY the online network
-    agent.policy_net.load_state_dict(checkpoint["online_state_dict"])
-    agent.epsilon = 0.0  # disable exploration
+        red_action = info["red_action"]
+        blue_action = info["blue_action"]
 
-    print("Model loaded. Starting evaluation...\n")
+        print(f"--- Step {step} ---")
+        print(f"RED action : {red_action}")
+        print(f"BLUE action: {blue_action}")
+        print(f"Red Reward = {reward:.2f}\n")
 
-    for ep in range(1, EPISODES + 1):
-        state = env.reset()
-        total_reward = 0
-        exploit_success = 0
-        exploit_attempts = 0
+        total_reward += reward
+        state = next_state
 
-        for step in range(MAX_STEPS):
-            action = agent.select_action(state)
+        if terminated or truncated:
+            break
 
-            next_state, reward, done, info = env.step(action)
-            total_reward += reward
-
-            # count exploit successes
-            if info["red_action"]["action"] == "exploit":
-                exploit_attempts += 1
-                if info["red_action"].get("success", False):
-                    exploit_success += 1
-
-            state = next_state
-            if done:
-                break
-
-        success_rate = (
-            exploit_success / exploit_attempts * 100
-            if exploit_attempts > 0
-            else 0
-        )
-
-        print(f"[EPISODE {ep}] Reward={total_reward:.2f}, "
-              f"Exploit Success={success_rate:.1f}% "
-              f"({exploit_success}/{exploit_attempts})")
-
-    print("\nEvaluation complete.")
+    print("=========== RED DQN EVALUATION COMPLETE ===========")
+    print(f"Total RED Reward = {total_reward:.2f}")
 
 
 if __name__ == "__main__":
-    evaluate_policy()
+    main()

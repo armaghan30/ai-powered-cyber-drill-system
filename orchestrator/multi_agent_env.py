@@ -1,5 +1,3 @@
-# orchestrator/multi_agent_env.py
-
 from __future__ import annotations
 
 from typing import Dict, Any, Tuple
@@ -9,20 +7,11 @@ import gymnasium as gym
 from gymnasium import spaces
 
 from orchestrator.orchestrator_core import Orchestrator
-from orchestrator.rl_env_red import flatten_red_state
+from orchestrator.state_vectors import flatten_red_state
 
 
 def build_blue_obs(env_state: Dict[str, Any], host_order) -> np.ndarray:
-    """
-    Build a simple numeric observation vector for the BLUE agent from an
-    environment snapshot (from Environment._snapshot()).
-
-    For each host (in host_order) we use:
-        [is_compromised, num_vulnerabilities, is_isolated]
-
-    plus global:
-        [total_compromised_hosts, total_remaining_vulns]
-    """
+    
     hosts = env_state.get("hosts", {})
     feats: list[float] = []
 
@@ -47,18 +36,7 @@ def build_blue_obs(env_state: Dict[str, Any], host_order) -> np.ndarray:
 
 
 class MultiAgentEnv(gym.Env):
-    """
-    Simple multi-agent wrapper around your orchestrator environment.
-
-    - Two agents: "red" and "blue"
-    - Action spaces:
-        RED:  2*N  (0..N-1: scan host_i, N..2N-1: exploit host_i)
-        BLUE: 2*N+1 (0..N-1: patch host_i, N..2N-1: isolate host_i, 2N: idle)
-
-    - Observations:
-        obs["red"]  : flattened red_state (flatten_red_state)
-        obs["blue"] : flattened snapshot from build_blue_obs(...)
-    """
+    
 
     metadata = {"render_modes": ["human"]}
 
@@ -68,7 +46,7 @@ class MultiAgentEnv(gym.Env):
         self.max_steps = max_steps
         self.step_counter = 0
 
-        # build orchestrator + env + agents
+        # built orchestrator + env + agents
         self.orch = Orchestrator(self.topology_path)
         self.orch.load_topology()
         self.orch.build_environment()
@@ -88,7 +66,6 @@ class MultiAgentEnv(gym.Env):
             "blue": spaces.Discrete(self.blue_action_dim),
         })
 
-        # build example observations to configure Box shapes
         red_state = self.orch.get_red_state()
         red_vec = flatten_red_state(red_state, self.host_order)
 
@@ -115,7 +92,7 @@ class MultiAgentEnv(gym.Env):
         super().reset(seed=seed)
         self.step_counter = 0
 
-        # rebuild env + agents fresh
+        # rebuilt env + agents fresh
         self.orch.load_topology()
         self.orch.build_environment()
         self.orch.init_red_agent()
@@ -136,11 +113,8 @@ class MultiAgentEnv(gym.Env):
         info: dict = {}
         return obs, info
 
-    # ------------------------------------------------
     def _decode_red_action(self, action_id: int) -> Dict[str, Any]:
-        """
-        Map a discrete action into a real RedAgent action (scan/exploit).
-        """
+       
         n = self.num_hosts
         if action_id < 0 or action_id >= self.red_action_dim:
             raise ValueError(f"Invalid RED action_id={action_id}")
@@ -154,13 +128,7 @@ class MultiAgentEnv(gym.Env):
             return self.orch.red_agent.exploit(target)
 
     def _decode_blue_action(self, action_id: int) -> Dict[str, Any]:
-        """
-        Map discrete id to Blue’s environment-level action dict.
-
-        0..N-1       : patch host_i
-        N..2N-1      : isolate host_i
-        2N (last id) : idle
-        """
+        
         n = self.num_hosts
         if action_id < 0 or action_id >= self.blue_action_dim:
             raise ValueError(f"Invalid BLUE action_id={action_id}")
@@ -177,12 +145,7 @@ class MultiAgentEnv(gym.Env):
 
     # ------------------------------------------------
     def step(self, actions: Dict[str, int]):
-        """
-        actions = {
-            "red":  <int>,
-            "blue": <int>,
-        }
-        """
+        
         red_id = int(actions["red"])
         blue_id = int(actions["blue"])
 
@@ -197,14 +160,14 @@ class MultiAgentEnv(gym.Env):
             prev_state, new_state, red_action, blue_action
         )
 
-        # build next observations
+        # built next observations
         red_state = self.orch.get_red_state()
         red_vec = flatten_red_state(red_state, self.host_order)
         blue_vec = build_blue_obs(new_state, self.host_order)
 
         self.step_counter += 1
         terminated = self.step_counter >= self.max_steps
-        truncated = False  # no separate truncation rule for now
+        truncated = False  
 
         obs = {"red": red_vec, "blue": blue_vec}
         rewards = {"red": float(red_r), "blue": float(blue_r)}

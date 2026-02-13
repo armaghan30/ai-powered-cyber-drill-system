@@ -1,17 +1,24 @@
-import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from orchestrator.orchestrator_core import Orchestrator
+def test_simulation_runs(orchestrator):
+    logs = orchestrator.run_simulation(max_steps=5)
+    assert logs is not None
+    assert len(logs) == 5
 
-orc = Orchestrator("orchestrator/sample_topology.yaml")
 
-orc.load_topology()
-orc.build_environment()
-orc.init_red_agent()
-orc.init_blue_agent()
+def test_simulation_log_structure(orchestrator):
+    logs = orchestrator.run_simulation(max_steps=3)
+    entry = logs[0]
 
-logs = orc.run_simulation(max_steps=5)
+    # these keys should be stored in each log entry
+    assert "step" in entry
+    assert "red_action" in entry
+    assert "blue_action" in entry
+    assert "red_reward" in entry
+    assert "blue_reward" in entry
 
-print("\nFINAL LOGS:")
-for entry in logs:
-    print(entry)
+
+def test_simulation_rewards_are_numeric(orchestrator):
+    logs = orchestrator.run_simulation(max_steps=3)
+    for entry in logs:
+        assert isinstance(entry["red_reward"], (int, float))
+        assert isinstance(entry["blue_reward"], (int, float))

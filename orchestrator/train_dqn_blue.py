@@ -1,46 +1,36 @@
+#Train the BLUE DQN agent using the BlueRLEnvironment (Gymnasium-style)
 
-
-"""
-Training script for Blue DQN Agent using BlueRLEnvironment (Gymnasium).
-"""
+from __future__ import annotations
 
 import csv
 
 from orchestrator.rl_env_blue import BlueRLEnvironment
-from orchestrator.dqn_agent_red import DQNAgentRed      
+from orchestrator.dqn_agent_blue import DQNAgentBlue
+
 
 def main():
     topology_path = "orchestrator/sample_topology.yaml"
-    
-    #------------------Hyperparameters---------------------
+
+    num_episodes = 500
     max_steps_per_episode = 20
-    num_episodes = 10
+
     gamma = 0.99
     lr = 1e-3
     batch_size = 64
-    buffer_capacity = 5000
+    buffer_capacity = 10_000
     epsilon_start = 1.0
     epsilon_end = 0.05
-    epsilon_decay_steps = 5000
+    epsilon_decay = 5_000
     target_update_freq = 500
-    
-    #-------------------------Environment------------------------
-    
+
     env = BlueRLEnvironment(topology_path, max_steps=max_steps_per_episode)
-    
-    state_vec, info = env.reset()
+    state_vec, _ = env.reset()
     state_dim = state_vec.shape[0]
-    
-    if env.num_blue_actions is None:
-        raise RuntimeError("Blue Action space not initialised. Check BlueRLEnvironment._build_action_space().")
-    
-    action_dim = env.num_blue_actions
-    
-    print(f"[BLUE INFO] State dim    : {state_dim}")
-    print(f"[BLUE INFO] Actions      : {action_dim}")
-    
-    #----------------------DQN Agent (used for BLUE)----------------------
-    agent = DQNAgentRed(
+    action_dim = env.action_dim
+
+    print(f"[BLUE TRAIN] state_dim={state_dim}, action_dim={action_dim}")
+
+    agent = DQNAgentBlue(
         state_dim=state_dim,
         action_dim=action_dim,
         lr=lr,
@@ -49,64 +39,49 @@ def main():
         buffer_capacity=buffer_capacity,
         epsilon_start=epsilon_start,
         epsilon_end=epsilon_end,
-        epsilon_decay=epsilon_decay_steps,
+        epsilon_decay=epsilon_decay,
         target_update_freq=target_update_freq,
     )
-    
+
     episode_rewards = []
-    
-    #-------------------------------Training Loop-----------------------------
-    for episode in range(1, num_episodes + 1):
-        state_vec, info = env.reset()
+
+    for ep in range(1, num_episodes + 1):
+        state, _ = env.reset()
         total_reward = 0.0
-        done = False
-        step_counter = 0
-        
-        print(f"\n[BLUE EPISODE {episode}/{num_episodes}] Starting.....")
-        
-        while not done:
-            step_counter += 1
-            if step_counter > max_steps_per_episode:
-                print(f"[BLUE EPISODE {episode}] Safety break at {step_counter} steps.")
-                break
-            
-            # Epsilon greedy action selection
-            action_id = agent.select_action(state_vec)
-            
-            # Environment step
-            next_vec, reward, terminated, truncated, info = env.step(action_id)
+
+        print(f"[BLUE EPISODE {ep}/{num_episodes}] Starting...")
+
+        for t in range(1, max_steps_per_episode + 1):
+            action = agent.act(state)
+            next_state, reward, terminated, truncated, info = env.step(action)
+
             done = terminated or truncated
-            
-            # Storing the transition and train
-            agent.store_transition(state_vec, action_id, reward, next_vec, done)
-            agent.train_step()
-            
-            state_vec = next_vec
+            agent.store_transition(state, action, reward, next_state, done)
+            agent.update()
+
+            state = next_state
             total_reward += reward
-            
+
+            if done:
+                break
+
         episode_rewards.append(total_reward)
-        
         print(
-            f"[BLUE EPISODE {episode}/{num_episodes}]"
-            f"Finished in {step_counter} steps | "
-            f"Total Reward = {total_reward:.2f} | "
-            f"Epsilon = {agent.epsilon:.3f} "
+            f"[BLUE EPISODE {ep}/{num_episodes}] "
+            f"Finished in {t} steps | Total Reward = {total_reward:.2f} | Epsilon = {agent.epsilon:.3f}"
         )
-        
-        #------------------------Save trained Model-----------------------------
-        save_path = "blue_dqn_model.pth"
-        agent.save(save_path)
-        print(f"\n[BLUE INFO] Training finished. Model saved to {save_path}")
-        
-        #------------------------Save rewards to CSV---------------------------------
-        with open("blue_reward.csv", "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(["episode", "reward"])
-            for i, r in enumerate(episode_rewards, start = 1):
-                writer.writerow([i, r])
-                
-        print("[BLUE INFO] Episode rewards saved to blue_rewards.csv")
-        
+
+    agent.save("blue_dqn_model.pth")
+
+    with open("blue_rewards.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["episode", "reward"])
+        for i, r in enumerate(episode_rewards, start=1):
+            writer.writerow([i, r])
+
+    print("[BLUE INFO] Training finished. Model saved to blue_dqn_model.pth")
+    print("[BLUE INFO] Episode rewards saved to blue_rewards.csv")
+
+
 if __name__ == "__main__":
     main()
-    

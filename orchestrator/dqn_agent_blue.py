@@ -28,7 +28,7 @@ class QNetwork(nn.Module):
         return self.net(x)
 
 
-class DQNAgentRed:
+class DQNAgentBlue:
     def __init__(
         self,
         state_dim: int,
@@ -69,7 +69,6 @@ class DQNAgentRed:
 
     # --------------------------------------------------
     def _update_epsilon(self):
-        """Exponential decay of epsilon."""
         self.steps_done += 1
         frac = min(self.steps_done / float(self.epsilon_decay), 1.0)
         self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * math.exp(
@@ -78,7 +77,6 @@ class DQNAgentRed:
 
     # --------------------------------------------------
     def act(self, state: np.ndarray, eval_mode: bool = False) -> int:
-        
         state_t = torch.as_tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
 
         if not eval_mode:
@@ -116,11 +114,9 @@ class DQNAgentRed:
         next_states_t = torch.as_tensor(next_states, dtype=torch.float32, device=self.device)
         dones_t = torch.as_tensor(dones, dtype=torch.float32, device=self.device)
 
-        # Q(s,a)
         q_values = self.online(states_t)
         q_sa = q_values.gather(1, actions_t.unsqueeze(1)).squeeze(1)
 
-        # max_a' Q_target(s', a')
         with torch.no_grad():
             next_q_values = self.target(next_states_t)
             max_next_q = torch.max(next_q_values, dim=1)[0]
@@ -132,7 +128,6 @@ class DQNAgentRed:
         loss.backward()
         self.optimizer.step()
 
-        # Target network update
         if self.steps_done % self.target_update_freq == 0:
             self.target.load_state_dict(self.online.state_dict())
 
@@ -150,11 +145,11 @@ class DQNAgentRed:
             },
             path,
         )
-        print(f"[RED DQN] Model saved -> {path}")
+        print(f"[BLUE DQN] Model saved -> {path}")
 
     # --------------------------------------------------
     @classmethod
-    def load(cls, path: str) -> "DQNAgentRed":
+    def load(cls, path: str) -> "DQNAgentBlue":
         ckpt = torch.load(path, map_location="cpu", weights_only=False)
 
         state_dim = ckpt["state_dim"]
@@ -165,7 +160,6 @@ class DQNAgentRed:
             action_dim=action_dim,
         )
 
-        # New standardized format
         if "online_state_dict" in ckpt:
             agent.online.load_state_dict(ckpt["online_state_dict"])
             if "target_state_dict" in ckpt:
@@ -180,5 +174,5 @@ class DQNAgentRed:
         agent.epsilon = ckpt.get("epsilon", 0.0)
         agent.steps_done = ckpt.get("steps_done", 0)
 
-        print(f"[RED DQN] Loaded from {path} (state_dim={state_dim}, action_dim={action_dim})")
+        print(f"[BLUE DQN] Loaded from {path} (state_dim={state_dim}, action_dim={action_dim})")
         return agent

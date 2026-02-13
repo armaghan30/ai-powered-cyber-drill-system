@@ -1,12 +1,8 @@
-
-"""
-Joint training of Red and Blue DQN agents on MultiAgentEnv (Gymnasium).
-"""
-
 import csv
 
 from orchestrator.multi_agent_env import MultiAgentEnv
 from orchestrator.dqn_agent_red import DQNAgentRed
+from orchestrator.dqn_agent_blue import DQNAgentBlue
 
 
 def main():
@@ -50,7 +46,7 @@ def main():
         target_update_freq=target_update_freq,
     )
 
-    blue_agent = DQNAgentRed(
+    blue_agent = DQNAgentBlue(
         state_dim=blue_state_dim,
         action_dim=blue_action_dim,
         lr=lr,
@@ -85,8 +81,8 @@ def main():
                 break
 
             # Each agent chooses an action based on its own state
-            red_action_id = red_agent.select_action(red_state)
-            blue_action_id = blue_agent.select_action(blue_state)
+            red_action_id = red_agent.act(red_state)
+            blue_action_id = blue_agent.act(blue_state)
 
             next_obs, rewards, terminated, truncated, info = env.step(
                 {"red": red_action_id, "blue": blue_action_id}
@@ -101,10 +97,10 @@ def main():
 
             # Store transitions and train
             red_agent.store_transition(red_state, red_action_id, red_r, red_next_state, done)
-            red_agent.train_step()
+            red_agent.update()
 
             blue_agent.store_transition(blue_state, blue_action_id, blue_r, blue_next_state, done)
-            blue_agent.train_step()
+            blue_agent.update()
 
             red_state = red_next_state
             blue_state = blue_next_state
@@ -128,7 +124,7 @@ def main():
     print("\n[MARL INFO] Training finished. Models saved as marl_red_dqn.pth and marl_blue_dqn.pth")
 
     # Save episode rewards
-        # Save episode rewards
+        
     with open("marl_rewards_red.csv", "w", newline="") as f_red:
         with open("marl_rewards_blue.csv", "w", newline="") as f_blue:
             red_writer = csv.writer(f_red)

@@ -1,33 +1,41 @@
-# test_blue_agent.py
 
-import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from orchestrator.orchestrator_core import Orchestrator
+def test_detect_exploit_success(blue_agent):
+    red_action = {"action": "exploit", "success": True, "target": "H1"}
+    assert blue_agent.detect(red_action) is True
 
-orc = Orchestrator("orchestrator/sample_topology.yaml")
 
-orc.load_topology()
-env = orc.build_environment()
+def test_detect_exploit_failure(blue_agent):
+    red_action = {"action": "exploit", "success": False, "target": "H1"}
+    assert blue_agent.detect(red_action) is False
 
-red = orc.init_red_agent()
-blue = orc.init_blue_agent()
 
-print("\n=== TEST: RED SCAN ===")
-scan_action = red.scan("H1")
-blue_response = blue.choose_action(scan_action)
-print("Blue Response:", blue_response)
+def test_detect_scan_returns_false(blue_agent):
+    red_action = {"action": "scan", "target": "H1"}
+    assert blue_agent.detect(red_action) is False
 
-print("\n=== TEST: RED EXPLOIT ===")
-exploit_action = red.exploit("H1")
-blue_response = blue.choose_action(exploit_action)
-print("Blue Response:", blue_response)
 
-print("\n=== ALERTS ===")
-print(blue.alerts)
+def test_detect_none_returns_false(blue_agent):
+    assert blue_agent.detect(None) is False
 
-print("\n=== PATCHED HOSTS ===")
-print(blue.patched_hosts)
 
-print("\n=== ISOLATED HOSTS ===")
-print(blue.isolated_hosts)
+def test_choose_action_isolates_on_exploit(blue_agent):
+    red_action = {"action": "exploit", "success": True, "target": "H1"}
+    result = blue_agent.choose_action(red_action)
+    assert result["action"] == "isolate"
+    assert result["target"] == "H1"
+
+
+def test_choose_action_on_scan(blue_agent):
+    red_action = {"action": "scan", "target": "H1"}
+    result = blue_agent.choose_action(red_action)
+    
+    assert result["action"] in ("patch", "idle")
+
+
+def test_patch_cooldown(blue_agent):
+    # Forcing the patch to trigger cooldown
+    
+    blue_agent.make_patch_action("H1")
+    assert blue_agent.patch_cooldown == blue_agent.patch_cooldown_steps
+    assert blue_agent._can_patch() is False

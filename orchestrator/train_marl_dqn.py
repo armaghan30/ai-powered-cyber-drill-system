@@ -6,10 +6,10 @@ from orchestrator.dqn_agent_blue import DQNAgentBlue
 
 
 def main():
-    topology_path = "orchestrator/sample_topology.yaml"
-
-    max_steps_per_episode = 20
-    num_episodes = 10
+    import sys
+    topology_path = sys.argv[1] if len(sys.argv) > 1 else "orchestrator/sample_topology.yaml"
+    num_episodes = int(sys.argv[2]) if len(sys.argv) > 2 else 10
+    max_steps_per_episode = int(sys.argv[3]) if len(sys.argv) > 3 else 20
 
     gamma = 0.99
     lr = 1e-3

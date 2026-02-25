@@ -1,0 +1,1041 @@
+[
+    {
+        "step": 1,
+        "timestamp": "2026-02-25T20:54:54.981025",
+        "red_state": {
+            "timestep": 0,
+            "hosts": {
+                "H1": {
+                    "scanned": 0,
+                    "vuln_count": 0,
+                    "service_count": 0,
+                    "is_compromised": 0,
+                    "access_level": 0,
+                    "is_isolated": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                },
+                "H2": {
+                    "scanned": 0,
+                    "vuln_count": 0,
+                    "service_count": 0,
+                    "is_compromised": 0,
+                    "access_level": 0,
+                    "is_isolated": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 0
+        },
+        "blue_state": {
+            "timestep": 0,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerability_count": 3,
+                    "access_level": 0,
+                    "sensitivity": 0,
+                    "is_isolated": 0,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                },
+                "H2": {
+                    "is_compromised": 0,
+                    "vulnerability_count": 3,
+                    "access_level": 0,
+                    "sensitivity": 2,
+                    "is_isolated": 0,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                }
+            },
+            "num_compromised": 0
+        },
+        "red_action": {
+            "action": "exploit",
+            "success": false,
+            "target": "H2",
+            "vulnerabilities": [
+                "CVE-2022-0847",
+                "CVE-2021-3156",
+                "CVE-2016-5195"
+            ]
+        },
+        "blue_action": {
+            "action": "patch",
+            "target": "H2"
+        },
+        "red_reward": -5.0,
+        "blue_reward": 6.0,
+        "environment": {
+            "step": 1,
+            "timestamp": "2026-02-25T20:54:54.981025",
+            "hosts": {
+                "H1": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2021-34527",
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ],
+                    "is_isolated": false,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                },
+                "H2": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2021-3156",
+                        "CVE-2016-5195"
+                    ],
+                    "is_isolated": false,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                }
+            },
+            "edges": [
+                [
+                    "H1",
+                    "H2"
+                ]
+            ]
+        }
+    },
+    {
+        "step": 2,
+        "timestamp": "2026-02-25T20:54:54.982024",
+        "red_state": {
+            "timestep": 1,
+            "hosts": {
+                "H1": {
+                    "scanned": 0,
+                    "vuln_count": 0,
+                    "service_count": 0,
+                    "is_compromised": 0,
+                    "access_level": 0,
+                    "is_isolated": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                },
+                "H2": {
+                    "scanned": 0,
+                    "vuln_count": 0,
+                    "service_count": 0,
+                    "is_compromised": 0,
+                    "access_level": 0,
+                    "is_isolated": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 0
+        },
+        "blue_state": {
+            "timestep": 1,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerability_count": 3,
+                    "access_level": 0,
+                    "sensitivity": 0,
+                    "is_isolated": 0,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                },
+                "H2": {
+                    "is_compromised": 0,
+                    "vulnerability_count": 2,
+                    "access_level": 0,
+                    "sensitivity": 2,
+                    "is_isolated": 0,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                }
+            },
+            "num_compromised": 0
+        },
+        "red_action": {
+            "action": "exploit",
+            "success": true,
+            "target": "H2",
+            "vulnerabilities": [
+                "CVE-2021-3156",
+                "CVE-2016-5195"
+            ]
+        },
+        "blue_action": {
+            "action": "isolate",
+            "target": "H2"
+        },
+        "red_reward": 42.0,
+        "blue_reward": -6.0,
+        "environment": {
+            "step": 2,
+            "timestamp": "2026-02-25T20:54:54.982024",
+            "hosts": {
+                "H1": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2021-34527",
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ],
+                    "is_isolated": false,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2016-5195"
+                    ],
+                    "is_isolated": true,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 3,
+        "timestamp": "2026-02-25T20:54:54.983026",
+        "red_state": {
+            "timestep": 2,
+            "hosts": {
+                "H1": {
+                    "scanned": 0,
+                    "vuln_count": 0,
+                    "service_count": 0,
+                    "is_compromised": 0,
+                    "access_level": 0,
+                    "is_isolated": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                },
+                "H2": {
+                    "scanned": 0,
+                    "vuln_count": 0,
+                    "service_count": 0,
+                    "is_compromised": 1,
+                    "access_level": 2,
+                    "is_isolated": 1,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 1
+        },
+        "blue_state": {
+            "timestep": 2,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerability_count": 3,
+                    "access_level": 0,
+                    "sensitivity": 0,
+                    "is_isolated": 0,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                },
+                "H2": {
+                    "is_compromised": 1,
+                    "vulnerability_count": 1,
+                    "access_level": 2,
+                    "sensitivity": 2,
+                    "is_isolated": 1,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                }
+            },
+            "num_compromised": 1
+        },
+        "red_action": {
+            "action": "lateral_move",
+            "target": "H1",
+            "source": null,
+            "success": false,
+            "reason": "no_adjacent_compromised"
+        },
+        "blue_action": {
+            "action": "detect",
+            "target": "H1",
+            "detected": false
+        },
+        "red_reward": -2.0,
+        "blue_reward": 1.0,
+        "environment": {
+            "step": 3,
+            "timestamp": "2026-02-25T20:54:54.983026",
+            "hosts": {
+                "H1": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2021-34527",
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ],
+                    "is_isolated": false,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2016-5195"
+                    ],
+                    "is_isolated": true,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 4,
+        "timestamp": "2026-02-25T20:54:54.983026",
+        "red_state": {
+            "timestep": 3,
+            "hosts": {
+                "H1": {
+                    "scanned": 0,
+                    "vuln_count": 0,
+                    "service_count": 0,
+                    "is_compromised": 0,
+                    "access_level": 0,
+                    "is_isolated": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                },
+                "H2": {
+                    "scanned": 0,
+                    "vuln_count": 0,
+                    "service_count": 0,
+                    "is_compromised": 1,
+                    "access_level": 2,
+                    "is_isolated": 1,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 1
+        },
+        "blue_state": {
+            "timestep": 3,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerability_count": 3,
+                    "access_level": 0,
+                    "sensitivity": 0,
+                    "is_isolated": 0,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                },
+                "H2": {
+                    "is_compromised": 1,
+                    "vulnerability_count": 1,
+                    "access_level": 2,
+                    "sensitivity": 2,
+                    "is_isolated": 1,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                }
+            },
+            "num_compromised": 1
+        },
+        "red_action": {
+            "action": "scan",
+            "target": "H2",
+            "vulnerabilities": [
+                "CVE-2016-5195"
+            ],
+            "services": [
+                "ssh"
+            ]
+        },
+        "blue_action": {
+            "action": "idle",
+            "target": null
+        },
+        "red_reward": 3.0,
+        "blue_reward": 0.0,
+        "environment": {
+            "step": 4,
+            "timestamp": "2026-02-25T20:54:54.983026",
+            "hosts": {
+                "H1": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2021-34527",
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ],
+                    "is_isolated": false,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2016-5195"
+                    ],
+                    "is_isolated": true,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 5,
+        "timestamp": "2026-02-25T20:54:54.984026",
+        "red_state": {
+            "timestep": 4,
+            "hosts": {
+                "H1": {
+                    "scanned": 0,
+                    "vuln_count": 0,
+                    "service_count": 0,
+                    "is_compromised": 0,
+                    "access_level": 0,
+                    "is_isolated": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vuln_count": 1,
+                    "service_count": 1,
+                    "is_compromised": 1,
+                    "access_level": 2,
+                    "is_isolated": 1,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 1
+        },
+        "blue_state": {
+            "timestep": 4,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerability_count": 3,
+                    "access_level": 0,
+                    "sensitivity": 0,
+                    "is_isolated": 0,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                },
+                "H2": {
+                    "is_compromised": 1,
+                    "vulnerability_count": 1,
+                    "access_level": 2,
+                    "sensitivity": 2,
+                    "is_isolated": 1,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                }
+            },
+            "num_compromised": 1
+        },
+        "red_action": {
+            "action": "exfiltrate",
+            "target": "H1",
+            "success": false,
+            "reason": "no_root_access"
+        },
+        "blue_action": {
+            "action": "idle",
+            "target": null
+        },
+        "red_reward": -2.0,
+        "blue_reward": 0.0,
+        "environment": {
+            "step": 5,
+            "timestamp": "2026-02-25T20:54:54.984026",
+            "hosts": {
+                "H1": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2021-34527",
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ],
+                    "is_isolated": false,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [
+                        "CVE-2016-5195"
+                    ],
+                    "is_isolated": true,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 6,
+        "timestamp": "2026-02-25T20:54:54.985026",
+        "red_state": {
+            "timestep": 5,
+            "hosts": {
+                "H1": {
+                    "scanned": 0,
+                    "vuln_count": 0,
+                    "service_count": 0,
+                    "is_compromised": 0,
+                    "access_level": 0,
+                    "is_isolated": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vuln_count": 1,
+                    "service_count": 1,
+                    "is_compromised": 1,
+                    "access_level": 2,
+                    "is_isolated": 1,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 1
+        },
+        "blue_state": {
+            "timestep": 5,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerability_count": 3,
+                    "access_level": 0,
+                    "sensitivity": 0,
+                    "is_isolated": 0,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                },
+                "H2": {
+                    "is_compromised": 1,
+                    "vulnerability_count": 1,
+                    "access_level": 2,
+                    "sensitivity": 2,
+                    "is_isolated": 1,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                }
+            },
+            "num_compromised": 1
+        },
+        "red_action": {
+            "action": "scan",
+            "target": "H1",
+            "vulnerabilities": [
+                "CVE-2021-34527",
+                "CVE-2020-0796",
+                "CVE-2017-0144"
+            ],
+            "services": [
+                "rdp",
+                "smb"
+            ]
+        },
+        "blue_action": {
+            "action": "harden",
+            "target": "H2"
+        },
+        "red_reward": 1.0,
+        "blue_reward": 8.0,
+        "environment": {
+            "step": 6,
+            "timestamp": "2026-02-25T20:54:54.985026",
+            "hosts": {
+                "H1": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2021-34527",
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ],
+                    "is_isolated": false,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [],
+                    "is_isolated": true,
+                    "detected": false,
+                    "hardened_level": 1,
+                    "data_exfiltrated": false
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 7,
+        "timestamp": "2026-02-25T20:54:54.985026",
+        "red_state": {
+            "timestep": 6,
+            "hosts": {
+                "H1": {
+                    "scanned": 1,
+                    "vuln_count": 3,
+                    "service_count": 2,
+                    "is_compromised": 0,
+                    "access_level": 0,
+                    "is_isolated": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vuln_count": 1,
+                    "service_count": 1,
+                    "is_compromised": 1,
+                    "access_level": 2,
+                    "is_isolated": 1,
+                    "hardened_level": 1,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 1
+        },
+        "blue_state": {
+            "timestep": 6,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerability_count": 3,
+                    "access_level": 0,
+                    "sensitivity": 0,
+                    "is_isolated": 0,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                },
+                "H2": {
+                    "is_compromised": 1,
+                    "vulnerability_count": 0,
+                    "access_level": 2,
+                    "sensitivity": 2,
+                    "is_isolated": 1,
+                    "detected": 0,
+                    "hardened_level": 1,
+                    "data_exfiltrated": 0
+                }
+            },
+            "num_compromised": 1
+        },
+        "red_action": {
+            "action": "escalate",
+            "target": "H1",
+            "success": false,
+            "reason": "not_compromised"
+        },
+        "blue_action": {
+            "action": "idle",
+            "target": null
+        },
+        "red_reward": -2.0,
+        "blue_reward": 0.0,
+        "environment": {
+            "step": 7,
+            "timestamp": "2026-02-25T20:54:54.985026",
+            "hosts": {
+                "H1": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2021-34527",
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ],
+                    "is_isolated": false,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [],
+                    "is_isolated": true,
+                    "detected": false,
+                    "hardened_level": 1,
+                    "data_exfiltrated": false
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 8,
+        "timestamp": "2026-02-25T20:54:54.986025",
+        "red_state": {
+            "timestep": 7,
+            "hosts": {
+                "H1": {
+                    "scanned": 1,
+                    "vuln_count": 3,
+                    "service_count": 2,
+                    "is_compromised": 0,
+                    "access_level": 0,
+                    "is_isolated": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vuln_count": 1,
+                    "service_count": 1,
+                    "is_compromised": 1,
+                    "access_level": 2,
+                    "is_isolated": 1,
+                    "hardened_level": 1,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 1
+        },
+        "blue_state": {
+            "timestep": 7,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerability_count": 3,
+                    "access_level": 0,
+                    "sensitivity": 0,
+                    "is_isolated": 0,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                },
+                "H2": {
+                    "is_compromised": 1,
+                    "vulnerability_count": 0,
+                    "access_level": 2,
+                    "sensitivity": 2,
+                    "is_isolated": 1,
+                    "detected": 0,
+                    "hardened_level": 1,
+                    "data_exfiltrated": 0
+                }
+            },
+            "num_compromised": 1
+        },
+        "red_action": {
+            "action": "lateral_move",
+            "target": "H1",
+            "source": null,
+            "success": false,
+            "reason": "no_adjacent_compromised"
+        },
+        "blue_action": {
+            "action": "idle",
+            "target": null
+        },
+        "red_reward": -2.0,
+        "blue_reward": 0.0,
+        "environment": {
+            "step": 8,
+            "timestamp": "2026-02-25T20:54:54.986025",
+            "hosts": {
+                "H1": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2021-34527",
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ],
+                    "is_isolated": false,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [],
+                    "is_isolated": true,
+                    "detected": false,
+                    "hardened_level": 1,
+                    "data_exfiltrated": false
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 9,
+        "timestamp": "2026-02-25T20:54:54.987026",
+        "red_state": {
+            "timestep": 8,
+            "hosts": {
+                "H1": {
+                    "scanned": 1,
+                    "vuln_count": 3,
+                    "service_count": 2,
+                    "is_compromised": 0,
+                    "access_level": 0,
+                    "is_isolated": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vuln_count": 1,
+                    "service_count": 1,
+                    "is_compromised": 1,
+                    "access_level": 2,
+                    "is_isolated": 1,
+                    "hardened_level": 1,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 1
+        },
+        "blue_state": {
+            "timestep": 8,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerability_count": 3,
+                    "access_level": 0,
+                    "sensitivity": 0,
+                    "is_isolated": 0,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                },
+                "H2": {
+                    "is_compromised": 1,
+                    "vulnerability_count": 0,
+                    "access_level": 2,
+                    "sensitivity": 2,
+                    "is_isolated": 1,
+                    "detected": 0,
+                    "hardened_level": 1,
+                    "data_exfiltrated": 0
+                }
+            },
+            "num_compromised": 1
+        },
+        "red_action": {
+            "action": "lateral_move",
+            "target": "H1",
+            "source": null,
+            "success": false,
+            "reason": "no_adjacent_compromised"
+        },
+        "blue_action": {
+            "action": "detect",
+            "target": "H1",
+            "detected": false
+        },
+        "red_reward": -2.0,
+        "blue_reward": 1.0,
+        "environment": {
+            "step": 9,
+            "timestamp": "2026-02-25T20:54:54.987026",
+            "hosts": {
+                "H1": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2021-34527",
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ],
+                    "is_isolated": false,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [],
+                    "is_isolated": true,
+                    "detected": false,
+                    "hardened_level": 1,
+                    "data_exfiltrated": false
+                }
+            },
+            "edges": []
+        }
+    },
+    {
+        "step": 10,
+        "timestamp": "2026-02-25T20:54:54.988026",
+        "red_state": {
+            "timestep": 9,
+            "hosts": {
+                "H1": {
+                    "scanned": 1,
+                    "vuln_count": 3,
+                    "service_count": 2,
+                    "is_compromised": 0,
+                    "access_level": 0,
+                    "is_isolated": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                },
+                "H2": {
+                    "scanned": 1,
+                    "vuln_count": 1,
+                    "service_count": 1,
+                    "is_compromised": 1,
+                    "access_level": 2,
+                    "is_isolated": 1,
+                    "hardened_level": 1,
+                    "data_exfiltrated": 0,
+                    "detected": 0
+                }
+            },
+            "num_hosts": 2,
+            "num_compromised": 1
+        },
+        "blue_state": {
+            "timestep": 9,
+            "hosts": {
+                "H1": {
+                    "is_compromised": 0,
+                    "vulnerability_count": 3,
+                    "access_level": 0,
+                    "sensitivity": 0,
+                    "is_isolated": 0,
+                    "detected": 0,
+                    "hardened_level": 0,
+                    "data_exfiltrated": 0
+                },
+                "H2": {
+                    "is_compromised": 1,
+                    "vulnerability_count": 0,
+                    "access_level": 2,
+                    "sensitivity": 2,
+                    "is_isolated": 1,
+                    "detected": 0,
+                    "hardened_level": 1,
+                    "data_exfiltrated": 0
+                }
+            },
+            "num_compromised": 1
+        },
+        "red_action": {
+            "action": "escalate",
+            "target": "H1",
+            "success": false,
+            "reason": "not_compromised"
+        },
+        "blue_action": {
+            "action": "idle",
+            "target": null
+        },
+        "red_reward": -2.0,
+        "blue_reward": 0.0,
+        "environment": {
+            "step": 10,
+            "timestamp": "2026-02-25T20:54:54.987026",
+            "hosts": {
+                "H1": {
+                    "is_compromised": false,
+                    "access_level": "none",
+                    "vulnerabilities": [
+                        "CVE-2021-34527",
+                        "CVE-2020-0796",
+                        "CVE-2017-0144"
+                    ],
+                    "is_isolated": false,
+                    "detected": false,
+                    "hardened_level": 0,
+                    "data_exfiltrated": false
+                },
+                "H2": {
+                    "is_compromised": true,
+                    "access_level": "root",
+                    "vulnerabilities": [],
+                    "is_isolated": true,
+                    "detected": false,
+                    "hardened_level": 1,
+                    "data_exfiltrated": false
+                }
+            },
+            "edges": []
+        }
+    }
+]

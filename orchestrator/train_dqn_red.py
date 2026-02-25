@@ -1,6 +1,3 @@
-
-#Train the RED DQN agent using the RedRLEnvironment (Gymnasium-style)
-
 from __future__ import annotations
 
 import csv
@@ -10,10 +7,10 @@ from orchestrator.dqn_agent_red import DQNAgentRed
 
 
 def main():
-    topology_path = "orchestrator/sample_topology.yaml"
-
-    num_episodes = 500
-    max_steps_per_episode = 20
+    import sys
+    topology_path = sys.argv[1] if len(sys.argv) > 1 else "orchestrator/sample_topology.yaml"
+    num_episodes = int(sys.argv[2]) if len(sys.argv) > 2 else 500
+    max_steps_per_episode = int(sys.argv[3]) if len(sys.argv) > 3 else 20
 
     gamma = 0.99
     lr = 1e-3
@@ -68,7 +65,7 @@ def main():
         episode_rewards.append(total_reward)
         print(
             f"[RED EPISODE {ep}/{num_episodes}] "
-            f"Reward = {total_reward:.2f} | ε = {agent.epsilon:.3f}"
+            f"Reward = {total_reward:.2f} | eps = {agent.epsilon:.3f}"
         )
 
     agent.save("red_dqn_model.pth")

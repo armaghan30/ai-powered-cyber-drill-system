@@ -29,4 +29,4 @@ def test_exploit_no_vulns_fails(environment, red_agent):
 
 def test_choose_action_returns_valid_action(red_agent):
     result = red_agent.choose_action()
-    assert result["action"] in ("scan", "exploit", "idle")
+    assert result["action"] in ("scan", "exploit", "escalate", "lateral_move", "exfiltrate", "idle")

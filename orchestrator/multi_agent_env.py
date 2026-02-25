@@ -11,7 +11,6 @@ from orchestrator.state_vectors import flatten_red_state
 
 
 def build_blue_obs(env_state: Dict[str, Any], host_order) -> np.ndarray:
-    
     hosts = env_state.get("hosts", {})
     feats: list[float] = []
 
@@ -23,11 +22,14 @@ def build_blue_obs(env_state: Dict[str, Any], host_order) -> np.ndarray:
         is_comp = float(h.get("is_compromised", False))
         num_v = float(len(h.get("vulnerabilities", [])))
         is_iso = float(h.get("is_isolated", False))
+        detected = float(h.get("detected", False))
+        hardened = float(h.get("hardened_level", 0))
+        exfil = float(h.get("data_exfiltrated", False))
 
         total_comp += int(is_comp)
         total_vulns += int(num_v)
 
-        feats.extend([is_comp, num_v, is_iso])
+        feats.extend([is_comp, num_v, is_iso, detected, hardened, exfil])
 
     feats.append(float(total_comp))
     feats.append(float(total_vulns))
@@ -58,8 +60,8 @@ class MultiAgentEnv(gym.Env):
         self.num_hosts = len(self.host_order)
 
         # action spaces
-        self.red_action_dim = 2 * self.num_hosts
-        self.blue_action_dim = 2 * self.num_hosts + 1  # +1 for idle
+        self.red_action_dim = 5 * self.num_hosts + 1
+        self.blue_action_dim = 5 * self.num_hosts + 1
 
         self.action_space = spaces.Dict({
             "red": spaces.Discrete(self.red_action_dim),
@@ -87,7 +89,7 @@ class MultiAgentEnv(gym.Env):
             ),
         })
 
-    # ------------------------------------------------
+    # ---------------------------------------------------------------------------------------
     def reset(self, seed=None, options=None) -> Tuple[Dict[str, np.ndarray], dict]:
         super().reset(seed=seed)
         self.step_counter = 0
@@ -100,8 +102,8 @@ class MultiAgentEnv(gym.Env):
 
         self.host_order = list(self.orch.environment.hosts.keys())
         self.num_hosts = len(self.host_order)
-        self.red_action_dim = 2 * self.num_hosts
-        self.blue_action_dim = 2 * self.num_hosts + 1
+        self.red_action_dim = 5 * self.num_hosts + 1
+        self.blue_action_dim = 5 * self.num_hosts + 1
 
         red_state = self.orch.get_red_state()
         red_vec = flatten_red_state(red_state, self.host_order)
@@ -114,7 +116,6 @@ class MultiAgentEnv(gym.Env):
         return obs, info
 
     def _decode_red_action(self, action_id: int) -> Dict[str, Any]:
-       
         n = self.num_hosts
         if action_id < 0 or action_id >= self.red_action_dim:
             raise ValueError(f"Invalid RED action_id={action_id}")
@@ -122,13 +123,22 @@ class MultiAgentEnv(gym.Env):
         if action_id < n:
             target = self.host_order[action_id]
             return self.orch.red_agent.scan(target)
-        else:
-            idx = action_id - n
-            target = self.host_order[idx]
+        elif action_id < 2 * n:
+            target = self.host_order[action_id - n]
             return self.orch.red_agent.exploit(target)
+        elif action_id < 3 * n:
+            target = self.host_order[action_id - 2 * n]
+            return self.orch.red_agent.escalate_privileges(target)
+        elif action_id < 4 * n:
+            target = self.host_order[action_id - 3 * n]
+            return self.orch.red_agent.lateral_move(target)
+        elif action_id < 5 * n:
+            target = self.host_order[action_id - 4 * n]
+            return self.orch.red_agent.exfiltrate(target)
+        else:
+            return {"action": "idle", "target": None}
 
     def _decode_blue_action(self, action_id: int) -> Dict[str, Any]:
-        
         n = self.num_hosts
         if action_id < 0 or action_id >= self.blue_action_dim:
             raise ValueError(f"Invalid BLUE action_id={action_id}")
@@ -137,13 +147,21 @@ class MultiAgentEnv(gym.Env):
             target = self.host_order[action_id]
             return {"action": "patch", "target": target}
         elif action_id < 2 * n:
-            idx = action_id - n
-            target = self.host_order[idx]
+            target = self.host_order[action_id - n]
             return {"action": "isolate", "target": target}
+        elif action_id < 3 * n:
+            target = self.host_order[action_id - 2 * n]
+            return {"action": "restore", "target": target}
+        elif action_id < 4 * n:
+            target = self.host_order[action_id - 3 * n]
+            return self.orch.blue_agent.make_detect_action(target)
+        elif action_id < 5 * n:
+            target = self.host_order[action_id - 4 * n]
+            return {"action": "harden", "target": target}
         else:
-            return {"action": "idle"}
+            return {"action": "idle", "target": None}
 
-    # ------------------------------------------------
+    # ----------------------------------------------------------------------------------
     def step(self, actions: Dict[str, int]):
         
         red_id = int(actions["red"])
@@ -179,7 +197,7 @@ class MultiAgentEnv(gym.Env):
 
         return obs, rewards, terminated, truncated, info
 
-    # ------------------------------------------------
+    # ---------------------------------------------------------------------------------
     def render(self):
         print(self.orch._snapshot_environment())
 

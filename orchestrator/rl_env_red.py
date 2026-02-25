@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -30,8 +29,7 @@ class RedRLEnvironment:
         example_vec = flatten_red_state(red_state, self.host_order)
         self.state_dim = int(example_vec.shape[0])
 
-        # Actions = 2 * n_hosts + 1 (scan, exploit, idle)
-        self.action_dim = 2 * len(self.host_order) + 1
+        self.action_dim = 5 * len(self.host_order) + 1
 
         self.observation_space = spaces.Box(
             low=0.0, high=10.0, shape=(self.state_dim,), dtype=np.float32
@@ -40,7 +38,7 @@ class RedRLEnvironment:
 
         print(f"[INFO] RED RL Env -> state_dim={self.state_dim}, action_dim={self.action_dim}")
 
-    # ------------------------------------------------------------
+    # ---------------------------------------------------------------------------------
     def _build_orchestrator(self):
         self.orch = Orchestrator(self.topology_path)
         self.orch.load_topology()
@@ -52,24 +50,29 @@ class RedRLEnvironment:
         self.red_agent = self.orch.red_agent
         self.blue_agent = self.orch.blue_agent
 
-    # ------------------------------------------------------------
+    # ------------------------------------------------------------------------------
     def _decode_red_action(self, index: int) -> Dict[str, Any]:
-
         n = len(self.host_order)
 
         if index < 0 or index >= self.action_dim:
             raise ValueError(f"Invalid RED action index: {index}")
 
         if index < n:
-            # Scan host_i
             host = self.host_order[index]
             return self.red_agent.scan(host)
         elif index < 2 * n:
-            # Exploit host_(i-n)
             host = self.host_order[index - n]
             return self.red_agent.exploit(host)
+        elif index < 3 * n:
+            host = self.host_order[index - 2 * n]
+            return self.red_agent.escalate_privileges(host)
+        elif index < 4 * n:
+            host = self.host_order[index - 3 * n]
+            return self.red_agent.lateral_move(host)
+        elif index < 5 * n:
+            host = self.host_order[index - 4 * n]
+            return self.red_agent.exfiltrate(host)
         else:
-            # Idle
             return {"action": "idle", "target": None}
 
     # ------------------------------------------------------------

@@ -1,4 +1,3 @@
-
 import json
 import datetime
 import copy
@@ -64,6 +63,9 @@ class Orchestrator:
                 "access_level": host.access_level,
                 "vulnerabilities": list(host.vulnerabilities),
                 "is_isolated": host.is_isolated,
+                "detected": host.detected,
+                "hardened_level": host.hardened_level,
+                "data_exfiltrated": host.data_exfiltrated,
             }
             for name, host in self.environment.hosts.items()
         }
@@ -106,6 +108,9 @@ class Orchestrator:
                 "is_compromised": int(host.is_compromised),
                 "access_level": self._encode_access_level(host.access_level),
                 "is_isolated": int(host.is_isolated),
+                "hardened_level": host.hardened_level,
+                "data_exfiltrated": int(host.data_exfiltrated),
+                "detected": int(host.detected),
             }
 
         red_state = {
@@ -116,7 +121,7 @@ class Orchestrator:
         }
         return red_state
 
-    # -------------BLUE state---------------------
+    # ---------------------BLUE state------------------------------
     
     def _build_blue_state(self):
         env = self.environment
@@ -130,6 +135,9 @@ class Orchestrator:
                 "access_level": self._encode_access_level(host.access_level),
                 "sensitivity": self._encode_sensitivity(host.sensitivity),
                 "is_isolated": int(host.is_isolated),
+                "detected": int(host.detected),
+                "hardened_level": host.hardened_level,
+                "data_exfiltrated": int(host.data_exfiltrated),
             }
 
         blue_state = {
@@ -145,7 +153,7 @@ class Orchestrator:
     def get_blue_state(self):
         return self._build_blue_state()
 
-    # ---------------------Simulation Step-----------------------
+    # ------------------------------Simulation Step---------------------------------
     
     def run_single_step(self):
         red_state = self._build_red_state()
@@ -197,7 +205,7 @@ class Orchestrator:
             json.dump(self.logs, f, indent=4)
         print(f"Logs saved to {filepath}")
 
-    # ---------------Dashboard / API helpers-----------------------
+    # ------------------------------Dashboard / API helpers-----------------------
     
     @classmethod
     def create_env(cls, topology_path: str):

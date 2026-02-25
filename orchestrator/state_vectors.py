@@ -1,13 +1,4 @@
 
-"""
-Helpers to convert orchestrator red/blue state dicts into flat vectors
-for DQN agents.
-
-Compatible with:
-- Orchestrator.get_red_state()
-- Orchestrator.get_blue_state()
-"""
-
 from __future__ import annotations
 
 from typing import Dict, List
@@ -33,6 +24,9 @@ def flatten_red_state(red_state: Dict, host_order: List[str]) -> np.ndarray:
                 float(h.get("is_compromised", 0)),
                 float(h.get("access_level", 0)),
                 float(h.get("is_isolated", 0)),
+                float(h.get("hardened_level", 0)),
+                float(h.get("data_exfiltrated", 0)),
+                float(h.get("detected", 0)),
             ]
         )
 
@@ -40,8 +34,7 @@ def flatten_red_state(red_state: Dict, host_order: List[str]) -> np.ndarray:
 
 
 def flatten_blue_state(blue_state: Dict, host_order: List[str]) -> np.ndarray:
-    
-    
+
     hosts = blue_state.get("hosts", {})
     timestep = float(blue_state.get("timestep", 0))
     num_compromised = float(blue_state.get("num_compromised", 0))
@@ -57,6 +50,9 @@ def flatten_blue_state(blue_state: Dict, host_order: List[str]) -> np.ndarray:
                 float(h.get("access_level", 0)),
                 float(h.get("sensitivity", 0)),
                 float(h.get("is_isolated", 0)),
+                float(h.get("detected", 0)),
+                float(h.get("hardened_level", 0)),
+                float(h.get("data_exfiltrated", 0)),
             ]
         )
 

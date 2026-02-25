@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -30,8 +29,7 @@ class BlueRLEnvironment:
         example_vec = flatten_blue_state(blue_state, self.host_order)
         self.state_dim = int(example_vec.shape[0])
 
-        # Actions = 2 * n_hosts + 1 (patch, isolate, idle)
-        self.action_dim = 2 * len(self.host_order) + 1
+        self.action_dim = 5 * len(self.host_order) + 1
 
         self.observation_space = spaces.Box(
             low=0.0, high=10.0, shape=(self.state_dim,), dtype=np.float32
@@ -55,7 +53,6 @@ class BlueRLEnvironment:
 
     # ------------------------------------------------------------
     def _decode_blue_action(self, index: int) -> Dict[str, Any]:
-        
         n = len(self.host_order)
 
         if index < 0 or index >= self.action_dim:
@@ -67,6 +64,15 @@ class BlueRLEnvironment:
         elif index < 2 * n:
             host = self.host_order[index - n]
             return {"action": "isolate", "target": host}
+        elif index < 3 * n:
+            host = self.host_order[index - 2 * n]
+            return {"action": "restore", "target": host}
+        elif index < 4 * n:
+            host = self.host_order[index - 3 * n]
+            return self.blue_agent.make_detect_action(host)
+        elif index < 5 * n:
+            host = self.host_order[index - 4 * n]
+            return {"action": "harden", "target": host}
         else:
             return {"action": "idle", "target": None}
 

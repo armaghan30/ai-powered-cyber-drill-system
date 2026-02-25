@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import csv
@@ -13,20 +12,31 @@ from .state_vectors import flatten_red_state, flatten_blue_state
 def decode_red_action_id(action_id: int, host_order: list[str], orch: Orchestrator) -> dict:
     n = len(host_order)
     if action_id < n:
-        host = host_order[action_id]
-        return orch.red_agent.scan(host)
+        return orch.red_agent.scan(host_order[action_id])
+    elif action_id < 2 * n:
+        return orch.red_agent.exploit(host_order[action_id - n])
+    elif action_id < 3 * n:
+        return orch.red_agent.escalate_privileges(host_order[action_id - 2 * n])
+    elif action_id < 4 * n:
+        return orch.red_agent.lateral_move(host_order[action_id - 3 * n])
+    elif action_id < 5 * n:
+        return orch.red_agent.exfiltrate(host_order[action_id - 4 * n])
     else:
-        host = host_order[action_id - n]
-        return orch.red_agent.exploit(host)
+        return {"action": "idle", "target": None}
 
 
-def decode_blue_action_id(action_id: int, host_order: list[str]) -> dict:
+def decode_blue_action_id(action_id: int, host_order: list[str], orch: Orchestrator) -> dict:
     n = len(host_order)
-
     if action_id < n:
         return {"action": "patch", "target": host_order[action_id]}
     elif action_id < 2 * n:
         return {"action": "isolate", "target": host_order[action_id - n]}
+    elif action_id < 3 * n:
+        return {"action": "restore", "target": host_order[action_id - 2 * n]}
+    elif action_id < 4 * n:
+        return orch.blue_agent.make_detect_action(host_order[action_id - 3 * n])
+    elif action_id < 5 * n:
+        return {"action": "harden", "target": host_order[action_id - 4 * n]}
     else:
         return {"action": "idle", "target": None}
 
@@ -70,7 +80,7 @@ def main():
             blue_state = orch.get_blue_state()
             blue_vec = flatten_blue_state(blue_state, host_order)
             blue_action_id = blue_agent.act(blue_vec, eval_mode=True)
-            blue_action = decode_blue_action_id(blue_action_id, host_order)
+            blue_action = decode_blue_action_id(blue_action_id, host_order, orch)
 
             # Apply actions
             env_state = orch.environment.step(red_action, blue_action)
@@ -95,7 +105,7 @@ def main():
         red_rewards.append(total_red_reward)
         blue_rewards.append(total_blue_reward)
 
-    # -------- Save per-episode rewards to CSV --------
+    # -------- Saveing rewards to CSV per-episode --------
     with open("marl_rewards_red.csv", "w", newline="") as f_red, open(
         "marl_rewards_blue.csv", "w", newline=""
     ) as f_blue:

@@ -20,6 +20,20 @@ Thumbs.db
 # --- Logs / temp ---
 *.log
 
+# --- Model files (too large for git) ---
+results/models/
+*.pth
+*.zip
+
+# --- TensorBoard logs ---
+tb_logs/
+
+# --- Pip artifacts ---
+=*
+
+# --- Pytest cache ---
+.pytest_cache/
+
 # --- Optional: local-only experiment logs/models ---
 models_local/
 results_local/

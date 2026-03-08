@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 import numpy as np
+import gymnasium as gym
 from gymnasium import spaces
 
 from orchestrator.orchestrator_core import Orchestrator
@@ -10,10 +11,12 @@ from orchestrator.state_vectors import flatten_red_state
 from orchestrator.reward_engine import RewardEngine
 
 
-class RedRLEnvironment:
-    
+class RedRLEnvironment(gym.Env):
+
+    metadata = {"render_modes": ["human"]}
 
     def __init__(self, topology_path: str, max_steps: int = 20, seed: int | None = None):
+        super().__init__()
         self.topology_path = topology_path
         self.max_steps = max_steps
         self.current_step = 0
@@ -32,7 +35,7 @@ class RedRLEnvironment:
         self.action_dim = 5 * len(self.host_order) + 1
 
         self.observation_space = spaces.Box(
-            low=0.0, high=10.0, shape=(self.state_dim,), dtype=np.float32
+            low=0.0, high=100.0, shape=(self.state_dim,), dtype=np.float32
         )
         self.action_space = spaces.Discrete(self.action_dim)
 
@@ -129,3 +132,14 @@ class RedRLEnvironment:
         }
 
         return np.array(obs_vec, dtype=np.float32), float(red_reward), terminated, truncated, info
+
+    # ------------------------------------------------------------
+    def render(self):
+        snapshot = self.orch._snapshot_environment()
+        print(f"[RED ENV] Step {self.current_step}/{self.max_steps}")
+        for name, host in snapshot.get("hosts", {}).items():
+            print(f"  {name}: compromised={host.get('is_compromised')}, "
+                  f"access={host.get('access_level')}, vulns={len(host.get('vulnerabilities', []))}")
+
+    def close(self):
+        self.orch = None

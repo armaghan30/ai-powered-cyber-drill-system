@@ -1,254 +1,213 @@
-# 🚀 AI-Powered Cyber Drill System  
-### Reinforcement Learning-based Red & Blue Teams on a Custom Cyber Range Environment  
+# AI-Powered Cyber Drill System
 
-This project implements a **fully interactive cyber drill system** powered by **Reinforcement Learning (RL)**.  
-It simulates realistic cybersecurity scenarios where:
+Reinforcement Learning-based Red & Blue Team simulation on a custom Cyber Range Environment.
 
-- A **Red Agent (attacker)** uses Deep Q-Learning (DQN)  
-- A **Blue Agent (defender)** uses rule-based logic or RL (MARL version)  
-- Both operate inside a **custom cyber range environment** with configurable network topologies  
-- Simulations produce detailed logs, rewards, attack chains, and performance metrics  
+## Overview
 
-This system is designed as part of a **Final Year Project (FYP)** and aims to model cyber attack and defense behaviors that adapt over time.
+This system simulates realistic cybersecurity scenarios using **Reinforcement Learning (RL)** where autonomous agents learn attack and defense strategies through experience:
 
----
+- **Red Agent (Attacker)** — learns to scan, exploit, escalate privileges, move laterally, and exfiltrate data
+- **Blue Agent (Defender)** — learns to patch, isolate, detect, restore, and harden network hosts
+- Both agents are trained using **Stable Baselines 3 (SB3) DQN** on a custom Gymnasium-compatible cyber range environment
+- The system supports **3 network topologies** of increasing complexity (2-host, 4-host, 8-host)
 
-# 📌 Table of Contents
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Project Architecture](#project-architecture)
-- [Environment Design](#environment-design)
-- [Red Agent (DQN)](#red-agent-dqn)
-- [Blue Agent](#blue-agent)
-- [Multi-Agent RL (MARL)](#multi-agent-rl-marl)
-- [Experimental Component: Tiny Agent](#experimental-component-tiny-agent)
-- [Project Folder Structure](#project-folder-structure)
-- [Training](#training)
-- [Evaluation](#evaluation)
-- [Simulation Logging](#simulation-logging)
-- [Configuration (Topologies & Scenarios)](#configuration-topologies--scenarios)
-- [Results & Visualizations](#results--visualizations)
-- [Dashboard (Planned Work)](#dashboard-planned-work)
-- [How to Run](#how-to-run)
-- [Future Improvements](#future-improvements)
+Built as a Final Year Project (FYP) to demonstrate AI-driven cybersecurity assessment.
 
 ---
 
-# 🔍 Overview
+## Key Features
 
-The AI-Powered Cyber Drill System models a simplified enterprise network where agents interact turn-by-turn.  
-
-**Red Agent:**  
-- Performs scanning  
-- Identifies vulnerabilities  
-- Attempts exploits  
-- Moves laterally  
-- Tries to compromise all critical hosts  
-
-**Blue Agent:**  
-- Detects malicious activity  
-- Chooses defensive responses: isolate, patch, restore  
-- Uses rule-based logic or RL depending on the configuration  
-
-The system includes:  
-✔ A custom RL environment (Gymnasium-style)  
-✔ Deep Reinforcement Learning (DQN) implementation  
-✔ Multi-agent RL (MARL) extension  
-✔ Configurable YAML-based topology definitions  
-✔ Full logging of attack/defense sequences  
-✔ Reward shaping engine  
-✔ Visualizations of training and evaluation  
+- **Custom Cyber Range Environment** — built from scratch with configurable YAML-based network topologies
+- **10 Agent Actions** — 5 Red attacks + 5 Blue defenses with realistic success probabilities
+- **SB3 DQN Training** — industry-standard Deep Q-Network via Stable Baselines 3
+- **Multi-Topology Support** — 2-host (simple), 4-host (medium), 8-host (enterprise 3-tier)
+- **TensorBoard Integration** — real-time training monitoring
+- **Automated Training Pipeline** — single command trains all agents across all topologies
+- **Gymnasium API** — standard RL interface (`reset()`, `step()`, `render()`)
 
 ---
 
-# ✨ Key Features
+## Architecture
 
-### 🔥 Custom Cyber Range Environment
-- Built from scratch (not using NASim or CyberBattleSim)
-- Supports arbitrary network topologies via YAML files
-- Tracks:
-  - vulnerabilities  
-  - services  
-  - host status  
-  - compromise state  
-  - red and blue actions  
+```
+Network Topology (YAML)
+        |
+   Environment (Gymnasium)
+   rl_env_red.py / rl_env_blue.py
+        |
+   Orchestrator Core
+   (state vectors, reward engine, env builder)
+        |
+   SB3 DQN Agent
+   (train_sb3_dqn_red.py / train_sb3_dqn_blue.py)
+        |
+   Trained Model (.zip)
+        |
+   Evaluation (eval_sb3.py)
+```
 
----
+### Red Agent Actions
+| # | Action       | Description                                              |
+|---|--------------|----------------------------------------------------------|
+| 1 | Scan         | Discover vulnerabilities on a target host                |
+| 2 | Exploit      | Attempt to compromise a host using known vulnerabilities |
+| 3 | Escalate     | Elevate access from user to root on a compromised host   |
+| 4 | Lateral Move | Spread to adjacent hosts in the network                  |
+| 5 | Exfiltrate   | Steal data from a compromised host with root access      |
 
-### 🤖 Red Agent – Deep Q-Learning (DQN)
-- Fully implemented using PyTorch  
-- Epsilon-greedy exploration  
-- Experience replay buffer  
-- Target network updates  
-- Supports greedy evaluation  
-
----
-
-### 🛡️ Blue Agent
-Two modes:
-
-#### 1️⃣ Rule-Based  
-- Simple deterministic defense  
-- Picks actions such as isolate, patch, restore  
-- Reacts to compromised hosts and scans  
-
-#### 2️⃣ RL-Based (MARL)  
-- Works jointly with Red Agent in a multi-agent setting  
-- DQN for both attacker and defender  
-- Cooperative/competitive dynamics  
-
----
-
-### 👥 Multi-Agent RL (MARL)
-Includes:
-
-- `train_marl_dqn.py`  
-- `eval_marl_dqn.py`  
-- Shared environment for simultaneous Red & Blue actions  
-- Separate DQNs for each agent  
-- Joint reward shaping  
-
-Models included:  
-- `marl_red_dqn.pth`  
-- `marl_blue_dqn.pth`
+### Blue Agent Actions
+| # | Action  | Description                                        |
+|---|---------|--------------------------------------------------- |
+| 1 | Patch   | Remove a vulnerability from a host                 |
+| 2 | Isolate | Disconnect a host from the network                 |
+| 3 | Restore | Reset a compromised host to clean state            |
+| 4 | Detect  | Scan a host for signs of compromise                |
+| 5 | Harden  | Remove vulnerabilities and increase host resilience|
 
 ---
 
-# 🧠 Environment Design
+## Network Topologies
 
-The environment is defined in:
-
-orchestrator/rl_env_red.py
-orchestrator/rl_env_blue.py
-orchestrator/multi_agent_env.py
-
-
-It supports:
-
-- Gymnasium-style API  
-  - `reset() → (obs, info)`  
-  - `step(action) → (obs, reward, terminated, truncated, info)`  
-- Vulnerability discovery  
-- Exploitation outcomes  
-- Defensive responses  
-- Episode termination based on:
-  - max steps  
-  - all hosts compromised  
-  - blue containment success  
-
-A reward engine assigns:
-
-- Positive reward for successful exploits  
-- Negative reward for failed actions  
-- Penalties for wasted steps  
-- Bonus for full network compromise  
+| Topology               | Hosts | Actions/Agent | Description                                 |
+|------------------------|-------|---------------|---------------------------------------------|
+| `sample_topology.yaml` |  2    |    11         | Simple network (Windows + Linux)            |
+| `topology_4host.yaml`  |  4    |    21         | Medium enterprise with dual attack paths    |
+| `topology_8host.yaml`  |  8    |    41         | 3-tier enterprise (DMZ, Internal, Database) |
 
 ---
 
-# 🔺 Red Agent (DQN)
+## Project Structure
 
-Implemented in:
-
-orchestrator/dqn_agent_red.py
-
-
-Supports:
-
-- Replay buffer  
-- Target network  
-- Neural network policy  
-- Epsilon decay  
-- Greedy evaluation  
-
-Training script:
-
-orchestrator/train_dqn_red.py
-
-
-Evaluation script:
-
-orchestrator/eval_report_red.py
-
-
-Produces:
-
-- reward plots  
-- compromised host plots  
-- simulation logs  
-
----
-
-# 🔵 Blue Agent
-
-Two implementations:
-
-### Rule-Based:
-orchestrator/agents/blue_agent.py
-
-
-### RL-Based (MARL):
-orchestrator/train_marl_dqn.py
-orchestrator/eval_marl_dqn.py
-
-
----
-
-# 🧪 Experimental Component: Tiny Agent
-
-The `tiny_agent/` folder contains an **early prototype environment** used to test:
-
-- RL loops  
-- Action/state formatting  
-- DQN implementation  
-- Observation handling  
-
-This module is *not part of the final system*, but it demonstrates the evolution of the project and is included for transparency.
-
----
-
-# 📁 Project Folder Structure
-
+```
 AI-Powered Cyber Drill System/
-│
-├── orchestrator/
-│ ├── agents/
-│ ├── tests/ (train_dqn_red.py, eval_report_red.py, train_marl_dqn.py, etc.)
-│ ├── rl_env_red.py
-│ ├── rl_env_blue.py
-│ ├── multi_agent_env.py
-│ ├── reward_engine.py
-│ ├── orchestrator_core.py
-│ └── sample_topology.yaml
-│
-├── configs/
-│ ├── sample_topology.yaml
-│ └── scenario_definitions.yaml
-│
-├── tiny_agent/
-│ ├── tiny_env.py
-│ ├── tiny_state.py
-│ ├── tiny_actions.py
-│ ├── train_tiny.py
-│ └── eval_tiny.py
-│
-├── dashboard/ (planned, not yet implemented)
-├── docs/
-├── red_dqn_model.pth
-├── blue_dqn_model.pth
-├── marl_red_dqn.pth
-├── marl_blue_dqn.pth
-├── *.csv (training logs)
-├── *.png (plots)
-└── simulation_log.
-
+|
+|-- orchestrator/
+|   |-- orchestrator_core.py        # Central simulation coordinator
+|   |-- env_builder.py              # Host model + Environment state machine
+|   |-- yaml_loader.py              # Topology YAML parser
+|   |-- state_vectors.py            # State representation for RL
+|   |-- reward_engine.py            # Reward shaping for agent learning
+|   |-- rl_env_red.py               # Gymnasium env for Red agent
+|   |-- rl_env_blue.py              # Gymnasium env for Blue agent
+|   |-- multi_agent_env.py          # Multi-agent RL environment
+|   |
+|   |-- agents/
+|   |   |-- red_agent.py            # Red agent strategies
+|   |   |-- blue_agent.py           # Blue agent strategies
+|   |   |-- base_agent.py           # Abstract agent interface
+|   |
+|   |-- train_sb3_dqn_red.py        # SB3 DQN training for Red
+|   |-- train_sb3_dqn_blue.py       # SB3 DQN training for Blue
+|   |-- run_training.py             # Master training runner (all topologies)
+|   |-- eval_sb3.py                 # SB3 model evaluation
+|   |-- plot_sb3_training.py        # Training reward visualization
+|   |
+|   |-- sample_topology.yaml        # 2-host topology
+|   |-- topology_4host.yaml         # 4-host topology
+|   |-- topology_8host.yaml         # 8-host topology
+|   |
+|   |-- tests/                      # 102 automated tests
+|       |-- conftest.py
+|       |-- test_*.py
+|
+|-- results/
+|   |-- csv/                        # Training reward CSVs
+|   |-- plots/                      # Training reward charts
+|   |-- models/                     # Trained model files (gitignored)
+|
+|-- requirements.txt
+|-- README.md
+```
 
 ---
 
-# 📊 Training
+## How to Run
 
-### Train Red DQN:
+### Install Dependencies
 ```bash
-python -m orchestrator.train_dqn_red
+pip install -r requirements.txt
+```
 
+### Train Agents (all topologies)
+```bash
+python -m orchestrator.run_training --timesteps 10000
+```
 
+### Train on a Specific Topology
+```bash
+python -m orchestrator.train_sb3_dqn_red orchestrator/topology_8host.yaml 50000 20
+python -m orchestrator.train_sb3_dqn_blue orchestrator/topology_8host.yaml 50000 20
+```
 
+### Evaluate a Trained Model
+```bash
+python -m orchestrator.eval_sb3 red dqn results/models/sb3_dqn_red_sample_topology orchestrator/sample_topology.yaml 20
+```
+
+### Generate Training Plots
+```bash
+python -m orchestrator.plot_sb3_training
+```
+
+### Run Tests
+```bash
+python -m pytest orchestrator/tests/ -v
+```
+
+### TensorBoard (optional)
+```bash
+tensorboard --logdir=./tb_logs
+```
+
+---
+
+## Results
+
+Training produces reward CSVs and visualization plots for each topology:
+
+| File | Description |
+|------|-------------|
+| `results/csv/sb3_dqn_red_{topo}.csv` | Red agent reward per episode |
+| `results/csv/sb3_dqn_blue_{topo}.csv` | Blue agent reward per episode |
+| `results/plots/sb3_dqn_training_{topo}.png` | Training reward curves |
+
+---
+
+## Development History
+
+This project evolved through 3 phases:
+
+1. **Phase 1** — Project cleanup, fixed 7 broken files, rewrote 35 tests
+2. **Phase 2** — Enhanced agents (5 Red + 5 Blue actions), 3 topologies, custom DQN training
+3. **Phase 3** — Upgraded to Stable Baselines 3 DQN for industry-standard training, reproducibility, and TensorBoard support
+
+The custom DQN implementation (Phase 2) served as the foundation to prove RL works in the cybersecurity domain. SB3 DQN (Phase 3) replaced it as the primary training approach for better stability, faster training, and production readiness.
+
+---
+
+## Tech Stack
+
+| Component           | Technology               |
+|---------------------|--------------------------|
+| RL Framework        | Stable Baselines 3 (DQN) |
+| Environment API     | Gymnasium                |
+| Neural Networks     | PyTorch                  |
+| Training Monitoring | TensorBoard              |
+| Network Topologies  | YAML                     |
+| Testing             | pytest (102 tests)       |
+| Language            | Python 3.10+             |
+
+---
+
+## Testing
+
+The project has 102 automated tests covering:
+- Environment mechanics and state transitions
+- Agent action execution and reward calculation
+- YAML topology loading and validation
+- SB3 compatibility (env checker, Monitor wrapper, DQN smoke tests)
+- Multi-topology support (2-host, 4-host, 8-host)
+
+```bash
+python -m pytest orchestrator/tests/ -v
+```

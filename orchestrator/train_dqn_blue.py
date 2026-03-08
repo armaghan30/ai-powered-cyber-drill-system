@@ -1,17 +1,25 @@
-
 from __future__ import annotations
 
 import csv
+import os
+import sys
 
 from orchestrator.rl_env_blue import BlueRLEnvironment
 from orchestrator.dqn_agent_blue import DQNAgentBlue
 
 
+def _topo_tag(path: str) -> str:
+    return os.path.splitext(os.path.basename(path))[0]
+
+
 def main():
-    import sys
     topology_path = sys.argv[1] if len(sys.argv) > 1 else "orchestrator/sample_topology.yaml"
     num_episodes = int(sys.argv[2]) if len(sys.argv) > 2 else 500
     max_steps_per_episode = int(sys.argv[3]) if len(sys.argv) > 3 else 20
+    topo = _topo_tag(topology_path)
+
+    os.makedirs("results/models", exist_ok=True)
+    os.makedirs("results/csv", exist_ok=True)
 
     gamma = 0.99
     lr = 1e-3
@@ -70,16 +78,19 @@ def main():
             f"Finished in {t} steps | Total Reward = {total_reward:.2f} | Epsilon = {agent.epsilon:.3f}"
         )
 
-    agent.save("blue_dqn_model.pth")
+    model_path = f"results/models/custom_dqn_blue_{topo}.pth"
+    csv_path = f"results/csv/custom_dqn_blue_{topo}.csv"
 
-    with open("blue_rewards.csv", "w", newline="") as f:
+    agent.save(model_path)
+    print(f"[BLUE] Model saved -> {model_path}")
+
+    with open(csv_path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["episode", "reward"])
+        writer.writerow(["episode", "reward", "topology"])
         for i, r in enumerate(episode_rewards, start=1):
-            writer.writerow([i, r])
+            writer.writerow([i, r, topo])
 
-    print("[BLUE INFO] Training finished. Model saved to blue_dqn_model.pth")
-    print("[BLUE INFO] Episode rewards saved to blue_rewards.csv")
+    print(f"[BLUE] Training finished. Rewards saved -> {csv_path}")
 
 
 if __name__ == "__main__":

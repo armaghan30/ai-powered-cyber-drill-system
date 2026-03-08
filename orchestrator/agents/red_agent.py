@@ -1,13 +1,11 @@
-
 import random
-
 
 class RedAgent:
     
     def __init__(self, environment):
        
         self.env = environment
-        # what we have learned via scans
+       
         self.known_vulns = {}
         self.compromised_hosts = []
 

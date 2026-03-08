@@ -1,4 +1,3 @@
-
 import random
 
 
@@ -10,10 +9,9 @@ class BlueAgent:
         self.patch_cooldown_steps = patch_cooldown_steps
         self.patch_cooldown = 0
 
-        # Phase 2: restore cooldown and detection tracking
         self.restore_cooldown_steps = restore_cooldown_steps
         self.restore_cooldown = 0
-        self.detected_hosts = set()  # hosts Blue knows are compromised via detect
+        self.detected_hosts = set()  
 
     # -----------------Cooldown helpers--------------------------
     def _tick_cooldown(self):
@@ -93,13 +91,13 @@ class BlueAgent:
     def choose_action(self, last_red_action):
         self._tick_cooldown()
 
-        # 1) If successful exploit detected -> isolate that host
+        # 1) IF successful exploit detected THEN isolate that host
         if self.detect(last_red_action):
             target = last_red_action.get("target")
             if target:
                 return self.make_isolate_action(target)
 
-        # 2) If we know of compromised hosts (from detect action), try to restore
+        # 2) IF we know of compromised hosts THEN try to restore
         compromised_detected = [
             name for name in self.detected_hosts
             if self.env.hosts[name].is_compromised
@@ -128,5 +126,5 @@ class BlueAgent:
                 else:
                     return self.make_patch_action(target)
 
-        # 5) Otherwise idle
+        # 5)  idle
         return {"action": "idle", "target": None}

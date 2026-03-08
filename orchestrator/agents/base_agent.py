@@ -8,6 +8,5 @@ class BaseAgent(ABC):
 
     @abstractmethod
     def act(self, observation: Dict[str, Any]) -> Dict[str, Any]:
-        """Given an observation
-        return an action dict."""
+        
         raise NotImplementedError

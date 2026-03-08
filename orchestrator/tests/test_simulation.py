@@ -9,7 +9,6 @@ def test_simulation_log_structure(orchestrator):
     logs = orchestrator.run_simulation(max_steps=3)
     entry = logs[0]
 
-    # these keys should be stored in each log entry
     assert "step" in entry
     assert "red_action" in entry
     assert "blue_action" in entry

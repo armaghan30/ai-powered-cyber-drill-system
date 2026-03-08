@@ -11,7 +11,6 @@ class Host:
         self.vulnerabilities = list(vulnerabilities)  # list of CVE strings
         self.sensitivity = sensitivity
 
-        # runtime values
         self.is_compromised = False
         self.access_level = "none"
         self.is_isolated = False

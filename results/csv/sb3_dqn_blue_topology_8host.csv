@@ -1,0 +1,11 @@
+episode,reward,topology
+1,9.0,topology_8host
+2,36.0,topology_8host
+3,22.0,topology_8host
+4,66.0,topology_8host
+5,55.0,topology_8host
+6,69.0,topology_8host
+7,41.0,topology_8host
+8,3.0,topology_8host
+9,18.0,topology_8host
+10,31.0,topology_8host

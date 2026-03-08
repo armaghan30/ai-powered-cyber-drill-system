@@ -1,0 +1,11 @@
+episode,reward,topology
+1,103.0,topology_4host
+2,112.0,topology_4host
+3,45.0,topology_4host
+4,129.0,topology_4host
+5,54.0,topology_4host
+6,54.0,topology_4host
+7,-15.0,topology_4host
+8,63.0,topology_4host
+9,62.0,topology_4host
+10,104.0,topology_4host

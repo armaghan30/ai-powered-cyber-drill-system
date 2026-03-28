@@ -1,3 +1,6 @@
 frontend/package-lock.json linguist-generated
 frontend/node_modules/** linguist-vendored
 frontend/dist/** linguist-vendored
+frontend/src/pages/Analytics.jsx linguist-vendored
+frontend/src/pages/CommandCentre.jsx linguist-vendored
+frontend/src/pages/AIOrchestrator.jsx linguist-vendored

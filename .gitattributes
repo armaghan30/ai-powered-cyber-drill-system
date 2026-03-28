@@ -1,2 +1,3 @@
-frontend/** linguist-vendored
 frontend/package-lock.json linguist-generated
+frontend/node_modules/** linguist-vendored
+frontend/dist/** linguist-vendored
